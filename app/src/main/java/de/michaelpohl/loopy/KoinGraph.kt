@@ -24,6 +24,7 @@ object KoinGraph {
 
     private val baseModule = module {
         single { androidApplication().resources }
+        single { androidApplication().assets }
         single { SharedPreferencesManager(get()) }
         single { InternalDataRepository(get(), get()) }
         single { ExternalStorageManager(get()) }

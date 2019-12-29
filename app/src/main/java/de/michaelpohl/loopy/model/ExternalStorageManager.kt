@@ -2,12 +2,17 @@ package de.michaelpohl.loopy.model
 
 import android.content.Context
 import android.os.Environment
+import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.InputStream
 
 class ExternalStorageManager(val context: Context) {
 
+    private val appStorageFolder: File by lazy {
+       context.getExternalFilesDir(null)
+    }
 
     private val isExternalStorageReadOnly: Boolean
         get() {
@@ -54,15 +59,16 @@ class ExternalStorageManager(val context: Context) {
     //    })  }
 
     fun createAppFolder(): Boolean {
-        val folder = File(Environment.getExternalStorageDirectory(), APP_FILES_FOLDER_NAME)
-        return if (!folder.exists()) {
-            folder.mkdirs()
-        } else true
+//        val folder = File(Environment.getExternalStorageDirectory())
+//        return if (!folder.exists()) {
+//            folder.mkdirs()
+//        } else true
+        return true
     }
 
-    fun createLoopFolder(folderName: String): Boolean {
+    fun createSetFolder(folderName: String? = STANDARD_SET_FOLDER_NAME): Boolean {
         val folder = File(
-            "${Environment.getExternalStorageDirectory()}/$APP_FILES_FOLDER_NAME",
+            "$appStorageFolder",
             folderName
         )
         return if (!folder.exists()) {
@@ -70,7 +76,38 @@ class ExternalStorageManager(val context: Context) {
         } else true
     }
 
+    fun copyToSdCard(input: InputStream, fileName: String) {
+        val outputFile = File("${appStorageFolder.path}/$STANDARD_SET_FOLDER_NAME/$fileName").name
+
+
+        try {
+            FileOutputStream(outputFile).use { out ->
+                input.use {
+                    it.copyTo(out)
+                }
+                out.close()
+            }
+        } catch (e: IOException) {
+            Timber.e("Copying of $fileName to SD card (Location: ${appStorageFolder.path}/$STANDARD_SET_FOLDER_NAME/$fileName) failed")
+            e.printStackTrace()
+        }
+    }
+    //        try {
+    //            val outFile = File(externalStorageFolder, fileName)
+    //            val outStream = FileOutputStream(outFile)
+    //            copyTo()
+    ////                            out = new FileOutputStream (outFile);
+    //            //                copyFile(in, out);
+    //            //            } catch (IOException e) {
+    //            //                Log.e("tag", "Failed to copy asset file: " + filename, e);
+    //            //            }
+    //        } catch (e: IOException) {
+    //            Timber.e("Copying of $fileName to SD card failed")
+    //            e.printStackTrace()
+    //        }
+    //    }
+
     companion object {
-        const val APP_FILES_FOLDER_NAME = "loopy"
+        const val STANDARD_SET_FOLDER_NAME = "standard"
     }
 }
