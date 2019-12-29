@@ -76,36 +76,23 @@ class ExternalStorageManager(val context: Context) {
         } else true
     }
 
-    fun copyToSdCard(input: InputStream, fileName: String) {
-        val outputFile = File("${appStorageFolder.path}/$STANDARD_SET_FOLDER_NAME/$fileName").name
-
+    //TODO change this to handle a number of files
+    fun copyStandardFilesToSdCard(input: InputStream, fileName: String) {
+        Timber.d("Is external storage available: $isExternalStorageAvailable, read only: $isExternalStorageReadOnly")
+        val outputPath = "${appStorageFolder.path}/$STANDARD_SET_FOLDER_NAME/"
 
         try {
-            FileOutputStream(outputFile).use { out ->
+            FileOutputStream(File(outputPath, fileName)).use { out ->
                 input.use {
                     it.copyTo(out)
                 }
                 out.close()
             }
         } catch (e: IOException) {
-            Timber.e("Copying of $fileName to SD card (Location: ${appStorageFolder.path}/$STANDARD_SET_FOLDER_NAME/$fileName) failed")
+            Timber.e("Copying of $fileName to SD card (Location: ${appStorageFolder.path}/$STANDARD_SET_FOLDER_NAME$fileName) failed")
             e.printStackTrace()
         }
     }
-    //        try {
-    //            val outFile = File(externalStorageFolder, fileName)
-    //            val outStream = FileOutputStream(outFile)
-    //            copyTo()
-    ////                            out = new FileOutputStream (outFile);
-    //            //                copyFile(in, out);
-    //            //            } catch (IOException e) {
-    //            //                Log.e("tag", "Failed to copy asset file: " + filename, e);
-    //            //            }
-    //        } catch (e: IOException) {
-    //            Timber.e("Copying of $fileName to SD card failed")
-    //            e.printStackTrace()
-    //        }
-    //    }
 
     companion object {
         const val STANDARD_SET_FOLDER_NAME = "standard"
