@@ -23,7 +23,7 @@ import com.google.android.material.snackbar.Snackbar
 import de.michaelpohl.loopy.common.*
 import de.michaelpohl.loopy.common.jni.JniBridge
 import de.michaelpohl.loopy.model.DataRepository
-import de.michaelpohl.loopy.model.InternalDataRepository
+import de.michaelpohl.loopy.model.AudioFilesRepository
 import de.michaelpohl.loopy.ui.main.BaseFragment
 import de.michaelpohl.loopy.ui.main.filebrowser.BrowserViewModel
 import de.michaelpohl.loopy.ui.main.player.PlayerFragment
@@ -42,7 +42,7 @@ class MainActivity: AppCompatActivity(), PlayerViewModel.PlayerActionsListener,
     BrowserViewModel.OnBrowserActionListener,
     NavigationView.OnNavigationItemSelectedListener, KoinComponent {
 
-    val dataRepo: InternalDataRepository by inject()
+    val dataRepo: AudioFilesRepository by inject()
 
     private val defaultFilesPath = Environment.getExternalStorageDirectory().toString()
     private var menuResourceID = R.menu.menu_main
@@ -68,7 +68,7 @@ class MainActivity: AppCompatActivity(), PlayerViewModel.PlayerActionsListener,
         }
         JniBridge.assets = assets
         keepScreenOnIfDesired()
-        dataRepo.autoCreateFirstLoopSet()
+        dataRepo.autoCreateStandardLoopSet()
 
     }
 

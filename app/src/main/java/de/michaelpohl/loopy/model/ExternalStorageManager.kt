@@ -11,7 +11,7 @@ import java.io.InputStream
 class ExternalStorageManager(val context: Context) {
 
     private val appStorageFolder: File by lazy {
-       context.getExternalFilesDir(null)
+        context.getExternalFilesDir(null)
     }
 
     private val isExternalStorageReadOnly: Boolean
@@ -58,14 +58,6 @@ class ExternalStorageManager(val context: Context) {
     //    }
     //    })  }
 
-    fun createAppFolder(): Boolean {
-//        val folder = File(Environment.getExternalStorageDirectory())
-//        return if (!folder.exists()) {
-//            folder.mkdirs()
-//        } else true
-        return true
-    }
-
     fun createSetFolder(folderName: String? = STANDARD_SET_FOLDER_NAME): Boolean {
         val folder = File(
             "$appStorageFolder",
@@ -92,6 +84,24 @@ class ExternalStorageManager(val context: Context) {
             Timber.e("Copying of $fileName to SD card (Location: ${appStorageFolder.path}/$STANDARD_SET_FOLDER_NAME$fileName) failed")
             e.printStackTrace()
         }
+    }
+
+    fun listAssetFiles(subFolder: String? = ""): Boolean {
+        val list: Array<String>
+        try {
+            context.getAssets().list(subFolder!!)?.let {
+                if (it.isEmpty()) return false
+                for (file in it) {
+                    if (!listAssetFiles("$subFolder/$file")) return false else { // This is a file
+                        Timber.d("Found this file: $file")
+                    }
+                }
+
+            }
+        } catch (e: IOException) {
+            return false
+        }
+        return true
     }
 
     companion object {

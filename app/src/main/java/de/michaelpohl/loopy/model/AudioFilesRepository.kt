@@ -5,7 +5,7 @@ import org.koin.core.KoinComponent
 import org.koin.core.inject
 import timber.log.Timber
 
-class InternalDataRepository(
+class AudioFilesRepository(
     private val sharedPrefsManager: SharedPreferencesManager,
     private val storage: ExternalStorageManager
 ) : KoinComponent {
@@ -25,10 +25,14 @@ class InternalDataRepository(
         return LoopSet("", listOf())
     }
 
-    fun autoCreateFirstLoopSet() {
-        val wasFolderCreated = storage.createAppFolder() && storage.createSetFolder()
+    fun autoCreateStandardLoopSet() {
+        val wasFolderCreated =  storage.createSetFolder()
         Timber.d("Was the folder created? $wasFolderCreated")
+        // TODO remove hardcoded thing here!
         val fileName = "testing.mp3"
-        storage.copyToSdCard(assets.open(fileName), fileName)
+        storage.listAssetFiles()
+        storage.copyStandardFilesToSdCard(assets.open(fileName), fileName)
     }
+
+
 }
