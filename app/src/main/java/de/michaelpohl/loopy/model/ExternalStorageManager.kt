@@ -2,6 +2,7 @@ package de.michaelpohl.loopy.model
 
 import android.content.Context
 import android.os.Environment
+import de.michaelpohl.loopy.common.FileHelper
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
@@ -69,39 +70,53 @@ class ExternalStorageManager(val context: Context) {
     }
 
     //TODO change this to handle a number of files
-    fun copyStandardFilesToSdCard(input: InputStream, fileName: String) {
+    fun copyStandardFilesToSdCard(): Boolean {
         Timber.d("Is external storage available: $isExternalStorageAvailable, read only: $isExternalStorageReadOnly")
         val outputPath = "${appStorageFolder.path}/$STANDARD_SET_FOLDER_NAME/"
 
-        try {
-            FileOutputStream(File(outputPath, fileName)).use { out ->
-                input.use {
-                    it.copyTo(out)
-                }
-                out.close()
+        return try {
+
+            listAssetFiles().forEach {
+                copySingleFileFromAssetsToStandardSet(outputPath, context.assets.open(it), it)
             }
+            true
         } catch (e: IOException) {
-            Timber.e("Copying of $fileName to SD card (Location: ${appStorageFolder.path}/$STANDARD_SET_FOLDER_NAME$fileName) failed")
+            Timber.e("Copying of files to SD card (Location: ${appStorageFolder.path}/$STANDARD_SET_FOLDER_NAME) failed")
             e.printStackTrace()
+            false
         }
     }
 
-    fun listAssetFiles(subFolder: String? = ""): Boolean {
-        val list: Array<String>
+    private fun copySingleFileFromAssetsToStandardSet(
+        outputPath: String,
+        input: InputStream,
+        fileName: String
+    ) {
+        FileOutputStream(File(outputPath, fileName)).use { out ->
+            input.use {
+                it.copyTo(out)
+            }
+            out.close()
+
+        }
+    }
+
+    fun listAssetFiles(): Set<String> {
+        val list = mutableSetOf<String>()
         try {
-            context.getAssets().list(subFolder!!)?.let {
-                if (it.isEmpty()) return false
-                for (file in it) {
-                    if (!listAssetFiles("$subFolder/$file")) return false else { // This is a file
-                        Timber.d("Found this file: $file")
+            context.assets.list("")?.let { filesList ->
+                filesList.filter { FileHelper.isValidAudioFile(it) }.forEach { fileName ->
+                    if (FileHelper.isValidAudioFile(fileName)) {
+                        Timber.d("Found this file: $fileName")
+                        list.add(fileName)
                     }
                 }
 
             }
         } catch (e: IOException) {
-            return false
+            e.printStackTrace()
         }
-        return true
+        return list
     }
 
     companion object {

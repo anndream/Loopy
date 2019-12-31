@@ -25,13 +25,16 @@ class AudioFilesRepository(
         return LoopSet("", listOf())
     }
 
-    fun autoCreateStandardLoopSet() {
+    /**
+     * Creates the standard set folder and moves all found audio files from assets to there
+     * @return true if everything was successful
+     */
+    fun autoCreateStandardLoopSet(): Boolean {
         val wasFolderCreated =  storage.createSetFolder()
-        Timber.d("Was the folder created? $wasFolderCreated")
-        // TODO remove hardcoded thing here!
-        val fileName = "testing.mp3"
         storage.listAssetFiles()
-        storage.copyStandardFilesToSdCard(assets.open(fileName), fileName)
+        val wereFilesCopied = storage.copyStandardFilesToSdCard()
+        Timber.d("Was setting up the standard folder successful? $wasFolderCreated, $wereFilesCopied")
+        return wasFolderCreated && wereFilesCopied
     }
 
 
