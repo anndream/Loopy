@@ -19,7 +19,7 @@ import java.io.File
 
 class PlayerViewModel(val repository: AudioFilesRepository) : BaseViewModel() {
 
-    val currentSet: List<File> = repository.getSingleSet()
+    val loopsList: List<AudioModel> = repository.getSingleSet()
 
     lateinit var adapter: LoopsAdapter
     private var updateHandler = Handler()
@@ -41,7 +41,7 @@ class PlayerViewModel(val repository: AudioFilesRepository) : BaseViewModel() {
 
     var looper: PlayerServiceInterface? = null
     lateinit var playerActionsListener: PlayerActionsListener
-    lateinit var loopsList: List<AudioModel>
+//    lateinit var loopsList: List<AudioModel>
 
     fun onStartPlaybackClicked(view: View) {
         //        looper?.let {
