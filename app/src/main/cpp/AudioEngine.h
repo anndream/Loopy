@@ -39,7 +39,7 @@ public:
     onAudioReady(AudioStream *oboeStream, void *audioData, int32_t numFrames) override;
 
     void onErrorAfterClose(AudioStream *oboeStream, Result error) override;
-    void playFile(const char * filename);
+    void playFile(std::string fileString);
 
 private:
     AudioStream *mAudioStream{nullptr};

@@ -77,7 +77,9 @@ bool AudioEngine::setupSource() {
     return true;
 }
 
-void AudioEngine::playFile(const char *filename) {
+void AudioEngine::playFile(std::string fileString) {
+        const char *filename = fileString.c_str();
+
     std::lock_guard<std::mutex> lock(mDataLock);
 
     if (mData != nullptr) {
@@ -86,6 +88,7 @@ void AudioEngine::playFile(const char *filename) {
     }
 
     std::ifstream file(filename, std::ifstream::in | std::ifstream::binary);
+    LOGD("Loop source: %s", fileString.c_str());
     LOGD("file state: %i, fail: %i, bad: %i", file.good(), file.fail(), file.bad());
     if (file.is_open()) {
         // Parse header
