@@ -54,11 +54,11 @@ private:
     std::future<void> mLoadingResult;
 
 
-    void load();
+//    void load();
 
-    bool openStream();
-
-    bool setupSource();
+//    bool openStream();
+//
+//    bool setupSource();
 
     // added from that library
     oboe::AudioApi mAudioApi = oboe::AudioApi::Unspecified;
@@ -87,6 +87,16 @@ private:
 //    bool parseWave(std::ifstream &file, int32_t *length);
 
     bool parseWave(std::ifstream &file, int32_t *length);
+
+    bool isPlaying() const;
+
+    void createPlaybackStream();
+
+    void restartStream();
+
+    void setupPlaybackStreamParameters(AudioStreamBuilder *builder);
+
+    void closeOutputStream();
 };
 
 #endif //OBOE_TEST_AUDIOENGINE_H
