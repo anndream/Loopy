@@ -29,6 +29,7 @@ class AudioEngine : public AudioStreamCallback {
 
 public:
     explicit AudioEngine();
+    ~AudioEngine();
 
     void prepare(std::string fileName);
 

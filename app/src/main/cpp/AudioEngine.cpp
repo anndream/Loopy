@@ -17,6 +17,12 @@ AudioEngine::AudioEngine() {
     createPlaybackStream();
 }
 
+AudioEngine::~AudioEngine()
+{
+    closeOutputStream();
+    LOGD("Closing play engine");
+}
+
 void AudioEngine::prepare(std::string fileName) {
     fileToPlay = fileName;
     LOGD("received this filename: %s", fileToPlay.c_str());
