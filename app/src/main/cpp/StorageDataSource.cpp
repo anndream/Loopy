@@ -17,7 +17,7 @@
 
 #include <oboe/Oboe.h>
 
-#include "AAssetDataSource.h"
+#include "StorageDataSource.h"
 
 //#if !defined(USE_FFMPEG)
 //#error USE_FFMPEG should be defined in app.gradle
@@ -29,24 +29,41 @@
 #include "NDKExtractor.h"
 #include "Constants.h"
 #include "logging.h"
+#include "StorageDataSource.h"
+#include <fstream>
 
 //#endif
 
 
-constexpr int kMaxCompressionRatio { 12 };
+constexpr int kMaxCompressionRatio{12};
 
-AAssetDataSource* AAssetDataSource::newFromCompressedAsset(
-        AAssetManager &assetManager,
+
+int getFileSize(const char *fileName) {
+    std::ifstream file(fileName, std::ifstream::in | std::ifstream::binary);
+
+    if (!file.is_open()) {
+        return -1;
+    }
+
+    file.seekg(0, std::ios::end);
+    int fileSize = static_cast<int>(file.tellg()); // casting long to int - let's see if that works
+    file.close();
+
+    return fileSize;
+}
+
+StorageDataSource *StorageDataSource::newFromCompressedAsset(
         const char *filename,
         const AudioProperties targetProperties) {
+    FILE *asset;
+    asset = fopen(filename, "r");
 
-    AAsset *asset = AAssetManager_open(&assetManager, filename, AASSET_MODE_UNKNOWN);
     if (!asset) {
         LOGE("Failed to open asset %s", filename);
         return nullptr;
     }
 
-    off_t assetSize = AAsset_getLength(asset);
+    off_t assetSize = getFileSize(filename);
     LOGD("Opened %s, size %ld", filename, assetSize);
 
     // Allocate memory to store the decompressed audio. We don't know the exact
@@ -62,7 +79,7 @@ AAssetDataSource* AAssetDataSource::newFromCompressedAsset(
     const long maximumDataSizeInBytes = kMaxCompressionRatio * assetSize * sizeof(int16_t);
     auto decodedData = new uint8_t[maximumDataSizeInBytes];
 
-    int64_t bytesDecoded = NDKExtractor::decode(asset, decodedData, targetProperties);
+    int64_t bytesDecoded = NDKExtractor::decode(filename, decodedData, targetProperties);
     auto numSamples = bytesDecoded / sizeof(int16_t);
 //#endif
 
@@ -74,15 +91,15 @@ AAssetDataSource* AAssetDataSource::newFromCompressedAsset(
 //#else
     // The NDK decoder can only decode to int16, we need to convert to floats
     oboe::convertPcm16ToFloat(
-            reinterpret_cast<int16_t*>(decodedData),
+            reinterpret_cast<int16_t *>(decodedData),
             outputBuffer.get(),
             bytesDecoded / sizeof(int16_t));
 //#endif
 
     delete[] decodedData;
-    AAsset_close(asset);
 
-    return new AAssetDataSource(std::move(outputBuffer),
-            numSamples,
-            targetProperties);
+    return new StorageDataSource(std::move(outputBuffer),
+                                numSamples,
+                                targetProperties);
 }
+

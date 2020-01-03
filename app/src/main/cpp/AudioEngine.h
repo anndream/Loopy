@@ -11,7 +11,7 @@
 
 #include <oboe/Oboe.h>
 #include "Player.h"
-#include "AAssetDataSource.h"
+#include "StorageDataSource.h"
 #include "OpenGLFunctions.h"
 #include "Mixer.h"
 #include "Constants.h"
@@ -29,7 +29,7 @@ class AudioEngine : public AudioStreamCallback {
 
 public:
     explicit AudioEngine();
-    ~AudioEngine();
+//    ~AudioEngine();
 
     void prepare(std::string fileName);
 
@@ -55,49 +55,49 @@ private:
     std::future<void> mLoadingResult;
 
 
-//    void load();
+    void load();
 
-//    bool openStream();
-//
-//    bool setupSource();
+    bool openStream();
+
+    bool setupSource();
 
     // added from that library
-    oboe::AudioApi mAudioApi = oboe::AudioApi::Unspecified;
-    int32_t mPlaybackDeviceId = oboe::kUnspecified;
-
-    oboe::AudioStream *mPlayStream;
-    std::mutex mRestartingLock;
-
-    std::mutex mDataLock;
-
-    int32_t mChannelCount;
-    int32_t mFramesPerBurst;
-
-    // Audio file params:
-    int32_t mReadFrameIndex = 0;
-    const int16_t* mData = nullptr;
-    int32_t mTotalFrames = 0;
-
-//    void createPlaybackStream();
+//    oboe::AudioApi mAudioApi = oboe::AudioApi::Unspecified;
+//    int32_t mPlaybackDeviceId = oboe::kUnspecified;
 //
-//    void closeOutputStream();
+//    oboe::AudioStream *mPlayStream;
+//    std::mutex mRestartingLock;
+//
+//    std::mutex mDataLock;
+//
+//    int32_t mChannelCount;
+//    int32_t mFramesPerBurst;
+//
+//    // Audio file params:
+//    int32_t mReadFrameIndex = 0;
+//    const int16_t* mData = nullptr;
+//    int32_t mTotalFrames = 0;
+//
+////    void createPlaybackStream();
+////
+////    void closeOutputStream();
+////
+////    void restartStream();
+////
+////    void setupPlaybackStreamParameters(oboe::AudioStreamBuilder *builder);
+////    bool parseWave(std::ifstream &file, int32_t *length);
+//
+//    bool parseWave(std::ifstream &file, int32_t *length);
+//
+//    bool isPlaying() const;
+//
+//    void createPlaybackStream();
 //
 //    void restartStream();
 //
-//    void setupPlaybackStreamParameters(oboe::AudioStreamBuilder *builder);
-//    bool parseWave(std::ifstream &file, int32_t *length);
-
-    bool parseWave(std::ifstream &file, int32_t *length);
-
-    bool isPlaying() const;
-
-    void createPlaybackStream();
-
-    void restartStream();
-
-    void setupPlaybackStreamParameters(AudioStreamBuilder *builder);
-
-    void closeOutputStream();
+//    void setupPlaybackStreamParameters(AudioStreamBuilder *builder);
+//
+//    void closeOutputStream();
 };
 
 #endif //OBOE_TEST_AUDIOENGINE_H

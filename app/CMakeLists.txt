@@ -9,7 +9,7 @@ add_library(native-lib
         src/main/cpp/native-lib.cpp
         src/main/cpp/AudioEngine.cpp
         src/main/cpp/DataSource.h
-        src/main/cpp/AAssetDataSource.cpp
+        src/main/cpp/StorageDataSource.cpp
         src/main/cpp/LockFreeQueue.h
         src/main/cpp/logging.h
         src/main/cpp/NDKExtractor.cpp

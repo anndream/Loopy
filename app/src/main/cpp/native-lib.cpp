@@ -19,12 +19,13 @@ std::string jstring2string(JNIEnv *env, jstring jStr) {
 
     const jclass stringClass = env->GetObjectClass(jStr);
     const jmethodID getBytes = env->GetMethodID(stringClass, "getBytes", "(Ljava/lang/String;)[B");
-    const jbyteArray stringJbytes = (jbyteArray) env->CallObjectMethod(jStr, getBytes, env->NewStringUTF("UTF-8"));
+    const jbyteArray stringJbytes = (jbyteArray) env->CallObjectMethod(jStr, getBytes,
+                                                                       env->NewStringUTF("UTF-8"));
 
     size_t length = (size_t) env->GetArrayLength(stringJbytes);
-    jbyte* pBytes = env->GetByteArrayElements(stringJbytes, NULL);
+    jbyte *pBytes = env->GetByteArrayElements(stringJbytes, NULL);
 
-    std::string ret = std::string((char *)pBytes, length);
+    std::string ret = std::string((char *) pBytes, length);
     env->ReleaseByteArrayElements(stringJbytes, pBytes, JNI_ABORT);
 
     env->DeleteLocalRef(stringJbytes);
@@ -43,13 +44,14 @@ std::string jstring2string(JNIEnv *env, jstring jStr) {
 //}
 
 JNIEXPORT void JNICALL
-Java_de_michaelpohl_loopy_common_jni_JniBridge_playFromJNI2(JNIEnv *env, jobject jinstance, jstring filePath) {
+Java_de_michaelpohl_loopy_common_jni_JniBridge_playFromJNI2(JNIEnv *env, jobject jinstance,
+                                                            jstring filePath) {
     LOGD("Trying to play from storage");
 
     std::string convertedFileName = jstring2string(env, filePath);
-    audioEngine= std::make_unique<AudioEngine>();
-    audioEngine->playFile(convertedFileName);
-//    audioEngine->start();
+    audioEngine = std::make_unique<AudioEngine>();
+    audioEngine->prepare(convertedFileName);
+    audioEngine->start();
 }
 
 } // extern "C"
