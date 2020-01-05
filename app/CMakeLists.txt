@@ -1,6 +1,23 @@
 cmake_minimum_required(VERSION 3.4.1)
 
+set(FFMPEG_DIR /volumes/work/repos/android/ffmpeg/build/${ANDROID_ABI})
+
 include_directories(src/main/cpp/)
+include_directories(native-lib ${FFMPEG_DIR}/include)
+
+add_library(avformat SHARED IMPORTED)
+set_target_properties(avformat PROPERTIES IMPORTED_LOCATION
+        ${FFMPEG_DIR}/lib/libavformat.so)
+add_library(avutil SHARED IMPORTED)
+set_target_properties(avutil PROPERTIES IMPORTED_LOCATION
+        ${FFMPEG_DIR}/lib/libavutil.so)
+add_library(avcodec SHARED IMPORTED)
+set_target_properties(avcodec PROPERTIES IMPORTED_LOCATION
+        ${FFMPEG_DIR}/lib/libavcodec.so)
+add_library(swresample SHARED IMPORTED)
+set_target_properties(swresample PROPERTIES IMPORTED_LOCATION
+        ${FFMPEG_DIR}/lib/libswresample.so)
+
 
 add_library(native-lib
 
@@ -19,14 +36,17 @@ add_library(native-lib
         src/main/cpp/Mixer.h
         src/main/cpp/IRenderableAudio.h
         src/main/cpp/UtilityFunctions.cpp
+        src/main/cpp/FFMpegExtractor.h
+        src/main/cpp/FFMpegExtractor.cpp
         )
 
-set (TARGET_LIBS log android oboe GLESv2)
+set(TARGET_LIBS log android oboe GLESv2)
 
-add_definitions(-DUSE_FFMPEG=0)
-set (TARGET_LIBS ${TARGET_LIBS} mediandk)
+add_definitions(-DUSE_FFMPEG=1)
+set(TARGET_LIBS ${TARGET_LIBS} native avformat avutil avcodec swresample)
 
-target_link_libraries( native-lib ${TARGET_LIBS} )
+
+target_link_libraries(native-lib ${TARGET_LIBS})
 
 #set(CMAKE_CXX_STANDARD 14)
 
@@ -35,6 +55,7 @@ set(OBOE_DIR /Volumes/Work/Repos/Android/oboe-test/oboe)
 
 # Add the Oboe library as a subdirectory.
 add_subdirectory(${OBOE_DIR} ./oboe)
+
 
 # Specify the path to the Oboe header files.
 include_directories(${OBOE_DIR}/include)
