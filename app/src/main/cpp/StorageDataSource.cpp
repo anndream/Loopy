@@ -19,9 +19,9 @@
 
 #include "StorageDataSource.h"
 
-#if !defined(USE_FFMPEG)
-#error USE_FFMPEG should be defined in app.gradle
-#endif
+//#if !defined(USE_FFMPEG)
+//#error USE_FFMPEG should be defined in app.gradle
+//#endif
 
 //#if USE_FFMPEG==1
 //#include "FFMpegExtractor.h"
@@ -56,28 +56,28 @@ int getFileSize(const char *fileName) {
 StorageDataSource *StorageDataSource::newFromCompressedAsset(
         const char *filename,
         const AudioProperties targetProperties) {
-    FILE *asset;
-    asset = fopen(filename, "r");
+    FILE *file;
+    file = fopen(filename, "r");
 
-    if (!asset) {
-        LOGE("Failed to open asset %s", filename);
+    if (!file) {
+        LOGE("Failed to open file %s", filename);
         return nullptr;
     }
 
-    off_t assetSize = getFileSize(filename);
-    LOGD("Opened %s, size %ld", filename, assetSize);
+    off_t fileSize = getFileSize(filename);
+    LOGD("Opened %s, size %ld", filename, fileSize);
 
     // Allocate memory to store the decompressed audio. We don't know the exact
     // size of the decoded data until after decoding so we make an assumption about the
     // maximum compression ratio and the decoded sample format (float for FFmpeg, int16 for NDK).
 //#if USE_FFMPEG==true
-    const long maximumDataSizeInBytes = kMaxCompressionRatio * assetSize * sizeof(float);
+    const long maximumDataSizeInBytes = kMaxCompressionRatio * fileSize * sizeof(float);
     auto decodedData = new uint8_t[maximumDataSizeInBytes];
 
-    int64_t bytesDecoded = FFMpegExtractor::decode2(asset, decodedData, targetProperties);
+    int64_t bytesDecoded = FFMpegExtractor::decode2(file, decodedData, targetProperties);
     auto numSamples = bytesDecoded / sizeof(float);
 //#else
-//    const long maximumDataSizeInBytes = kMaxCompressionRatio * assetSize * sizeof(int16_t);
+//    const long maximumDataSizeInBytes = kMaxCompressionRatio * fileSize * sizeof(int16_t);
 //    auto decodedData = new uint8_t[maximumDataSizeInBytes];
 //
 //    int64_t bytesDecoded = NDKExtractor::decode(filename, decodedData, targetProperties);
