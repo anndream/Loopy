@@ -42,8 +42,8 @@ add_library(native-lib
 
 set(TARGET_LIBS log android oboe GLESv2)
 
-add_definitions(-DUSE_FFMPEG=1)
-set(TARGET_LIBS ${TARGET_LIBS} native avformat avutil avcodec swresample)
+#add_definitions(-DUSE_FFMPEG=1)
+set(TARGET_LIBS ${TARGET_LIBS} avformat avutil avcodec swresample)
 
 
 target_link_libraries(native-lib ${TARGET_LIBS})
