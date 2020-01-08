@@ -2,48 +2,63 @@
 // Created by Michael on 2020-01-05.
 //
 
-/*
- * Copyright 2018 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 #include <memory>
 #include <oboe/Definitions.h>
 #include "FFMpegExtractor.h"
 #include "logging.h"
+#include <fstream>
 
 constexpr int kInternalBufferSize = 1152; // Use MP3 block size. https://wiki.hydrogenaud.io/index.php?title=MP3
 
-int read(void *opaque, uint8_t *buf, int buf_size) {
 
-    auto asset = (AAsset *) opaque;
-    int bytesRead = AAsset_read(asset, buf, (size_t)buf_size);
-    return bytesRead;
+/**
+ * Reads from an IStream into FFmpeg.
+ *
+ * @param ptr       A pointer to the user-defined IO data structure.
+ * @param buf       A buffer to read into.
+ * @param buf_size  The size of the buffer buff.
+ *
+ * @return The number of bytes read into the buffer.
+ */
+
+static int read(void* opaque, uint8_t* buf, int buf_size) {
+    auto& stream = *reinterpret_cast<std::istream*>(opaque);
+    auto bufPtr = reinterpret_cast<char*>(buf);
+    stream.read(bufPtr, buf_size);
+    auto readBytes = stream.gcount();
+    return readBytes;
 }
 
-int64_t seek(void *opaque, int64_t offset, int whence){
+static int64_t seek(void *opaque, int64_t offset, int whence) {
+    auto& me = *reinterpret_cast<std::istream*>(opaque);
 
-    auto asset = (AAsset*)opaque;
+    switch (whence) {
+        case SEEK_SET:
+            me.seekg(offset, me.beg);
+            break;
+        case SEEK_CUR:
+            offset += me.tellg();
+            me.seekg(offset, me.beg);
+            break;
+        case SEEK_END:
+            me.seekg(offset, me.end);
+            break;
+        case (AVSEEK_SIZE):
+            int64_t currentOffset = me.tellg();
 
-    // See https://www.ffmpeg.org/doxygen/3.0/avio_8h.html#a427ff2a881637b47ee7d7f9e368be63f
-    if (whence == AVSEEK_SIZE) return AAsset_getLength(asset);
-    if (AAsset_seek(asset, offset, whence) == -1){
-        return -1;
-    } else {
-        return 0;
+            me.seekg(0, std::ios::end);
+            long size = me.tellg();
+
+            me.seekg(currentOffset, me.beg);
+
+            return size;
     }
+
+    auto pos = me.tellg();
+    return pos;
 }
+
+
 
 bool FFMpegExtractor::createAVIOContext(AAsset *asset, uint8_t *buffer, uint32_t bufferSize,
                                         AVIOContext **avioContext) {
@@ -67,7 +82,7 @@ bool FFMpegExtractor::createAVIOContext(AAsset *asset, uint8_t *buffer, uint32_t
     }
 }
 
-bool FFMpegExtractor::createAVIOContext2(FILE *file, uint8_t *buffer, uint32_t bufferSize,
+bool FFMpegExtractor::createAVIOContext2(char* file, uint8_t *buffer, uint32_t bufferSize,
                                         AVIOContext **avioContext) {
 
     constexpr int isBufferWriteable = 0;
@@ -143,7 +158,7 @@ AVStream *FFMpegExtractor::getBestAudioStream(AVFormatContext *avFormatContext) 
 }
 
 int64_t FFMpegExtractor::decode2(
-        FILE *file,
+        char* file,
         uint8_t *targetData,
         AudioProperties targetProperties) {
 
