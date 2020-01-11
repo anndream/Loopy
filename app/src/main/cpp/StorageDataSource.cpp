@@ -82,7 +82,7 @@ StorageDataSource *StorageDataSource::newFromCompressedAsset(
     const long maximumDataSizeInBytes = kMaxCompressionRatio * fileSize * sizeof(float);
     auto decodedData = new uint8_t[maximumDataSizeInBytes];
 
-    int64_t bytesDecoded = FFMpegExtractor::decode2(const_cast<char *>(filedata), decodedData, targetProperties);
+    int64_t bytesDecoded = FFMpegExtractor::decode2(const_cast<char *>(filename), decodedData, targetProperties);
     auto numSamples = bytesDecoded / sizeof(float);
 //#else
 //    const long maximumDataSizeInBytes = kMaxCompressionRatio * fileSize * sizeof(int16_t);

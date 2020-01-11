@@ -38,6 +38,7 @@ add_library(native-lib
         src/main/cpp/UtilityFunctions.cpp
         src/main/cpp/FFMpegExtractor.h
         src/main/cpp/FFMpegExtractor.cpp
+        src/main/cpp/MediaSource.cpp
         )
 
 set(TARGET_LIBS log android oboe GLESv2)
