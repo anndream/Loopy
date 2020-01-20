@@ -8,6 +8,15 @@
 #include "logging.h"
 #include <fstream>
 
+FFMpegExtractor::FFMpegExtractor() {
+    mSource = new MediaSource;
+}
+
+FFMpegExtractor::~FFMpegExtractor() {
+    // add this line in destructor, release instance
+    delete mSource;
+}
+
 constexpr int kInternalBufferSize = 1152; // Use MP3 block size. https://wiki.hydrogenaud.io/index.php?title=MP3
 
 
@@ -21,7 +30,6 @@ constexpr int kInternalBufferSize = 1152; // Use MP3 block size. https://wiki.hy
  * @return The number of bytes read into the buffer.
  */
 
-MediaSource source;
 
 // If FFmpeg needs to read the file, it will call this function.
 // We need to fill the buffer with file's data.
@@ -62,16 +70,18 @@ bool FFMpegExtractor::createAVIOContext(AAsset *asset, uint8_t *buffer, uint32_t
 
 
 // you should create and save a MediaSource instance.
-bool FFMpegExtractor::createAVIOContext2(MediaSource *source, uint8_t *buffer, uint32_t bufferSize,
+bool FFMpegExtractor::createAVIOContext2(const std::string &filepath, uint8_t *buffer, uint32_t bufferSize,
                                          AVIOContext **avioContext) {
 
+    mSource = new MediaSource;
+    mSource->open(filepath);
     constexpr int isBufferWriteable = 0;
 
     *avioContext = avio_alloc_context(
             buffer, // internal buffer for FFmpeg to use
             bufferSize, // For optimal decoding speed this should be the protocol block size
             isBufferWriteable,
-            source, // Will be passed to our callback functions as a (void *)
+            mSource, // Will be passed to our callback functions as a (void *)
             read, // Read callback function
             nullptr, // Write callback function (not used)
             seek); // Seek callback function
@@ -83,28 +93,6 @@ bool FFMpegExtractor::createAVIOContext2(MediaSource *source, uint8_t *buffer, u
         return true;
     }
 }
-
-//bool FFMpegExtractor::createAVIOContext2(char* file, uint8_t *buffer, uint32_t bufferSize,
-//                                        AVIOContext **avioContext) {
-//
-//    constexpr int isBufferWriteable = 0;
-//
-//    *avioContext = avio_alloc_context(
-//            buffer, // internal buffer for FFmpeg to use
-//            bufferSize, // For optimal decoding speed this should be the protocol block size
-//            isBufferWriteable,
-//            file, // Will be passed to our callback functions as a (void *)
-//            read, // Read callback function
-//            nullptr, // Write callback function (not used)
-//            seek); // Seek callback function
-//
-//    if (*avioContext == nullptr){
-//        LOGE("Failed to create AVIO context");
-//        return false;
-//    } else {
-//        return true;
-//    }
-//}
 
 bool
 FFMpegExtractor::createAVFormatContext(AVIOContext *avioContext,
@@ -170,8 +158,6 @@ int64_t FFMpegExtractor::decode2(
     // Create a buffer for FFmpeg to use for decoding (freed in the custom deleter below)
     auto buffer = reinterpret_cast<uint8_t *>(av_malloc(kInternalBufferSize));
 
-    source = MediaSource(filepath);
-    MediaSource* source_ptr = &source;
 
     // Create an AVIOContext with a custom deleter
     std::unique_ptr<AVIOContext, void (*)(AVIOContext *)> ioContext{
@@ -183,7 +169,7 @@ int64_t FFMpegExtractor::decode2(
     };
     {
         AVIOContext *tmp = nullptr;
-        if (!createAVIOContext2(source_ptr, buffer, kInternalBufferSize, &tmp)) {
+        if (!createAVIOContext2(filepath, buffer, kInternalBufferSize, &tmp)) {
             LOGE("Could not create an AVIOContext");
             return returnValue;
         }

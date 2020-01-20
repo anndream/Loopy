@@ -21,11 +21,19 @@ extern "C" {
 
 class FFMpegExtractor {
 public:
+
+    FFMpegExtractor();
+
+    ~FFMpegExtractor();
+
+
     static int64_t decode(AAsset *asset, uint8_t *targetData, AudioProperties targetProperties);
 
-    static int64_t decode2(char *filepath, uint8_t *targetData, AudioProperties targetProperties);
+    int64_t decode2(char *filepath, uint8_t *targetData, AudioProperties targetProperties);
 
 private:
+    MediaSource *mSource;
+
     static bool createAVIOContext(AAsset *asset, uint8_t *buffer, uint32_t bufferSize,
                                   AVIOContext **avioContext);
 
@@ -43,8 +51,9 @@ private:
 
     static void printCodecParameters(AVCodecParameters *params);
 
-    static bool
-    createAVIOContext2(MediaSource* source, uint8_t *buffer, uint32_t bufferSize, AVIOContext **avioContext);
+    bool
+    createAVIOContext2(const std::string &filePath, uint8_t *buffer, uint32_t bufferSize,
+                       AVIOContext **avioContext);
 };
 
 

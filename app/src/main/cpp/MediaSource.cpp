@@ -18,28 +18,34 @@ extern "C" {
 #include "logging.h"
 
 // wrapper class for file stream
-class  MediaSource {
+class MediaSource {
 public:
-    MediaSource(const std::string filePath) {
-        const char *x = filePath.c_str();
 
-        LOGD("Opened %s", x);
-        source.open(filePath, std::ios::in | std::ios::binary);
+    MediaSource() {
     }
+
     ~MediaSource() {
         source.close();
     }
+
+    void open(const std::string &filePath) {
+        const char *x = filePath.c_str();
+        LOGD("Opened %s", x);
+        source.open(filePath, std::ios::in | std::ios::binary);
+    }
+
     int read(uint8_t *buffer, int buf_size) {
         // read data to buffer
-        source.read((char *)buffer, buf_size);
+        source.read((char *) buffer, buf_size);
         // return how many bytes were read
         return source.gcount();
     }
+
     int64_t seek(int64_t offset, int whence) {
         if (whence == AVSEEK_SIZE) {
             // FFmpeg needs file size.
             int oldPos = source.tellg();
-            source.seekg(0,std::ios::end);
+            source.seekg(0, std::ios::end);
             int64_t length = source.tellg();
             // seek to old pos
             source.seekg(oldPos);
@@ -57,7 +63,9 @@ public:
         // return current pos
         return source.tellg();
     }
+
 private:
     std::ifstream source;
 };
+
 #endif //LOOPY_MEDIASOURCE_CPP
