@@ -8,10 +8,12 @@
 #include "logging.h"
 #include <android/asset_manager_jni.h>
 #include <memory>
+#include "FFMpegTest.h"
 
 extern "C" {
 
 std::unique_ptr<AudioEngine> audioEngine;
+std::unique_ptr<FFMpegTest> test;
 
 std::string jstring2string(JNIEnv *env, jstring jStr) {
     if (!jStr)
@@ -49,9 +51,11 @@ Java_de_michaelpohl_loopy_common_jni_JniBridge_playFromJNI2(JNIEnv *env, jobject
     LOGD("Trying to play from storage");
 
     std::string convertedFileName = jstring2string(env, filePath);
-    audioEngine = std::make_unique<AudioEngine>();
-    audioEngine->prepare(convertedFileName);
-    audioEngine->start();
+
+    test->createFFmpeg(convertedFileName.c_str());
+//    audioEngine = std::make_unique<AudioEngine>();
+//    audioEngine->prepare(convertedFileName);
+//    audioEngine->start();
 }
 
 } // extern "C"

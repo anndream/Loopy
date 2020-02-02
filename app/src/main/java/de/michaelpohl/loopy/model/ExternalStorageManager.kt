@@ -89,7 +89,6 @@ class ExternalStorageManager(val context: Context) {
         val outputPath = "${appStorageFolder.path}/$STANDARD_SET_FOLDER_NAME/"
 
         return try {
-
             listAssetFiles().forEach {
                 copySingleFileFromAssetsToStandardSet(outputPath, context.assets.open(it), it)
             }

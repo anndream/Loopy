@@ -36,6 +36,8 @@ add_library(native-lib
         src/main/cpp/Mixer.h
         src/main/cpp/IRenderableAudio.h
         src/main/cpp/UtilityFunctions.cpp
+        src/main/cpp/FFMpegTest.h
+        src/main/cpp/FFMpegTest.cpp
         src/main/cpp/FFMpegExtractor.h
         src/main/cpp/FFMpegExtractor.cpp
         src/main/cpp/MediaSource.cpp
