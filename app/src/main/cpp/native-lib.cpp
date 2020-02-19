@@ -52,10 +52,10 @@ Java_de_michaelpohl_loopy_common_jni_JniBridge_playFromJNI2(JNIEnv *env, jobject
 
     std::string convertedFileName = jstring2string(env, filePath);
 
-    test->createFFmpeg(convertedFileName.c_str());
-//    audioEngine = std::make_unique<AudioEngine>();
-//    audioEngine->prepare(convertedFileName);
-//    audioEngine->start();
+//    test->createFFmpeg(convertedFileName.c_str());
+    audioEngine = std::make_unique<AudioEngine>();
+    audioEngine->prepare(convertedFileName);
+    audioEngine->start();
 }
 
 } // extern "C"
