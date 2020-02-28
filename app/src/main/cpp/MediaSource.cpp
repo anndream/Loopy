@@ -38,10 +38,13 @@ public:
         // read data to buffer
         source.read((char *) buffer, buf_size);
         // return how many bytes were read
-        return source.gcount();
+        int count = source.gcount();
+        LOGD("read...buf_size: %s, gcount: %s", (char *)buf_size, (char *)count);
+        return count;
     }
 
     int64_t seek(int64_t offset, int whence) {
+        LOGD("seek...offset: %s, whence: %s, filesize: %s", (char *) offset, (char *) whence, (char *)AVSEEK_SIZE);
         if (whence == AVSEEK_SIZE) {
             // FFmpeg needs file size.
             int oldPos = source.tellg();

@@ -9,6 +9,9 @@
 #include <fstream>
 
 MediaSource *FFMpegExtractor::mSource = nullptr;
+char * FFMpegExtractor::url = nullptr;
+AVFormatContext * FFMpegExtractor::fContext = nullptr;
+
 
 FFMpegExtractor::FFMpegExtractor() {
 }
@@ -76,20 +79,22 @@ bool
 FFMpegExtractor::createAVFormatContext(AVIOContext *avioContext,
                                        AVFormatContext **avFormatContext) {
 
-    *avFormatContext = avformat_alloc_context();
-    (*avFormatContext)->pb = avioContext;
+    fContext = avformat_alloc_context();
+    (fContext)->pb = avioContext;
 
-    if (*avFormatContext == nullptr) {
+    if (fContext == nullptr) {
         LOGE("Failed to create AVFormatContext");
         return false;
     } else {
+        LOGE("Created AVFormatContext");
         return true;
     }
 }
 
 bool FFMpegExtractor::openAVFormatContext(AVFormatContext *avFormatContext) {
-
-    int result = avformat_open_input(&avFormatContext,
+    LOGD("The AVFormatContext's duration: %s", (unsigned char*) avFormatContext->duration);
+    LOGD("The global url: %s", url);
+    int result = avformat_open_input(&fContext,
                                      "", /* URL is left empty because we're providing our own I/O */
                                      nullptr /* AVInputFormat *fmt */,
                                      nullptr /* AVDictionary **options */
@@ -132,6 +137,7 @@ int64_t FFMpegExtractor::decode2(
         AudioProperties targetProperties) {
 
     LOGD("Decode SETUP");
+    url = filepath;
     int returnValue = -1; // -1 indicates error
 
     // Create a buffer for FFmpeg to use for decoding (freed in the custom deleter below)

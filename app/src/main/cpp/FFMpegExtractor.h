@@ -38,6 +38,10 @@ private:
 
     static MediaSource *mSource;
 
+    static char * url;
+
+    static AVFormatContext *fContext;
+
     static bool createAVFormatContext(AVIOContext *avioContext, AVFormatContext **avFormatContext);
 
     static bool openAVFormatContext(AVFormatContext *avFormatContext);
