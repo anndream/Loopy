@@ -8,17 +8,17 @@
 #include "logging.h"
 #include <fstream>
 
+MediaSource *FFMpegExtractor::mSource = nullptr;
+
 FFMpegExtractor::FFMpegExtractor() {
-    mSource = new MediaSource;
 }
 
 FFMpegExtractor::~FFMpegExtractor() {
     // add this line in destructor, release instance
-    delete mSource;
+    delete FFMpegExtractor::mSource;
 }
 
 constexpr int kInternalBufferSize = 1152; // Use MP3 block size. https://wiki.hydrogenaud.io/index.php?title=MP3
-
 
 /**
  * Reads from an IStream into FFmpeg.
@@ -47,7 +47,8 @@ int64_t seek(void *opaque, int64_t offset, int whence) {
 
 
 // you should create and save a MediaSource instance.
-bool FFMpegExtractor::createAVIOContext2(const std::string &filepath, uint8_t *buffer, uint32_t bufferSize,
+bool FFMpegExtractor::createAVIOContext2(const std::string &filepath, uint8_t *buffer,
+                                         uint32_t bufferSize,
                                          AVIOContext **avioContext) {
 
     mSource = new MediaSource;
@@ -126,7 +127,7 @@ AVStream *FFMpegExtractor::getBestAudioStream(AVFormatContext *avFormatContext) 
 }
 
 int64_t FFMpegExtractor::decode2(
-        char* filepath,
+        char *filepath,
         uint8_t *targetData,
         AudioProperties targetProperties) {
 
@@ -160,15 +161,14 @@ int64_t FFMpegExtractor::decode2(
             &avformat_free_context
     };
 
-    std::unique_ptr<AVFormatContext> formatContext{
-            nullptr
-    };
     {
         AVFormatContext *tmp;
+        LOGD("before createAVFormatContext");
         if (!createAVFormatContext(ioContext.get(), &tmp)) return returnValue;
+        LOGD("before reset");
         formatContext.reset(tmp);
     }
-
+    LOGD("before openAVFormatContext");
     if (!openAVFormatContext(formatContext.get())) return returnValue;
 
     if (!getStreamInfo(formatContext.get())) return returnValue;
