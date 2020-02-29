@@ -2,6 +2,12 @@ package de.michaelpohl.loopy.model
 
 import android.content.Context
 import android.os.Environment
+import android.util.Log
+import com.arthenica.mobileffmpeg.Config
+import com.arthenica.mobileffmpeg.Config.RETURN_CODE_CANCEL
+import com.arthenica.mobileffmpeg.Config.RETURN_CODE_SUCCESS
+import com.arthenica.mobileffmpeg.FFmpeg
+import com.arthenica.mobileffmpeg.FFprobe
 import de.michaelpohl.loopy.common.AudioModel
 import de.michaelpohl.loopy.common.FileHelper
 import timber.log.Timber
@@ -92,6 +98,7 @@ class ExternalStorageManager(val context: Context) {
             listAssetFiles().forEach {
                 copySingleFileFromAssetsToStandardSet(outputPath, context.assets.open(it), it)
             }
+            convertFilesInPath(outputPath)
             true
         } catch (e: IOException) {
             Timber.e("Copying of files to SD card (Location: ${appStorageFolder.path}/$STANDARD_SET_FOLDER_NAME) failed")
@@ -100,11 +107,44 @@ class ExternalStorageManager(val context: Context) {
         }
     }
 
-    private fun copySingleFileFromAssetsToStandardSet(
-        outputPath: String,
-        input: InputStream,
-        fileName: String
-    ) {
+    private fun convertFilesInPath(path: String) {
+        Timber.d("Converting files in path...")
+        File(path).walk().forEach {
+            Timber.d("Found: ${it.name}")
+            if (it.name.endsWith("mp3")) { //TODO remove hardcoded String with a better structure
+
+                FFprobe.execute("-i $path${it.name}")
+                val fileName = "$path${it.name}"
+                val command = "-i $path${it.name} ${changeSuffixToWav(fileName)}"
+                Timber.d("Executing FFMpeg with: $command")
+                val returnCode = FFmpeg.execute(command)
+                    Timber.d("Return code: $returnCode")
+                when (returnCode) {
+                    RETURN_CODE_SUCCESS -> {
+                        Timber.d("Command execution completed successfully.")
+                    }
+                    RETURN_CODE_CANCEL -> {
+                        Timber.d("Command execution cancelled by user.")
+                    }
+                    else -> {
+                        Timber.d(
+                            String.format(
+                                "Command execution failed with rc=%d and the output below.", returnCode
+                            )
+                        )
+                        Config.printLastCommandOutput(Log.INFO)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun changeSuffixToWav(name: String) : String {
+        Timber.d("Change Suffix of: $name")
+        return "${name.substringBeforeLast(".")}.wav"
+    }
+
+    private fun copySingleFileFromAssetsToStandardSet(outputPath: String, input: InputStream, fileName: String) {
         FileOutputStream(File(outputPath, fileName)).use { out ->
             input.use {
                 it.copyTo(out)
@@ -112,6 +152,16 @@ class ExternalStorageManager(val context: Context) {
             out.close()
 
         }
+    }
+
+    private fun convertToWav(inputPath: String, outputPath: String) {
+        Timber.d("Converting to wav...\ninputPath: $inputPath, outPutPath: $outputPath")
+
+        //        val returnCode = FFmpeg.execute("-i $inputPath -c:v $outputPath out")
+
+        //
+        //            }
+        //        }
     }
 
     fun listAssetFiles(): Set<String> {

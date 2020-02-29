@@ -53,15 +53,14 @@ class MainActivity : AppCompatActivity(), PlayerViewModel.PlayerActionsListener,
     private lateinit var currentFragment: BaseFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Timber.d("onCreate")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
-
         if (savedInstanceState == null) {
             val permissionHelper = PermissionHelper(this)
             permissionHelper.checkPermissions()
         }
         setupTimber()
+        Timber.d("onCreate")
         setupAppData()
         setupNavigation()
         initDataRepository()
@@ -77,7 +76,8 @@ class MainActivity : AppCompatActivity(), PlayerViewModel.PlayerActionsListener,
         Timber.d("is App setup? ${prefs.setupComplete}")
         // if the standard folder has not been created yet, we do so, and on success set isAppSetup to true
         // on Failure, whatever the reason might be, it stays false and will run again next startup
-        if (!prefs.setupComplete) {
+//        if (!prefs.setupComplete) {
+        if (true ) { //TODO remove again
             val setupComplete = audioFilesRepo.autoCreateStandardLoopSet()
             Timber.d("Setup complete? $setupComplete")
             prefs.setupComplete = setupComplete
@@ -128,6 +128,7 @@ class MainActivity : AppCompatActivity(), PlayerViewModel.PlayerActionsListener,
     private fun setupTimber() {
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
+            Timber.d("Timber is on")
         }
     }
 

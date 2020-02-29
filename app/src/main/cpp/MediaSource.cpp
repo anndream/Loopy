@@ -64,8 +64,28 @@ public:
             return -1;
         }
         // return current pos
-        return source.tellg();
+        return 0;
     }
+
+//    int read(void *opaque, uint8_t *buf, int buf_size) {
+//
+//        auto asset = (AAsset *) opaque;
+//        int bytesRead = AAsset_read(asset, buf, (size_t)buf_size);
+//        return bytesRead;
+//    }
+
+//    int64_t seek(void *opaque, int64_t offset, int whence){
+//
+//        auto asset = (AAsset*)opaque;
+//
+//        // See https://www.ffmpeg.org/doxygen/3.0/avio_8h.html#a427ff2a881637b47ee7d7f9e368be63f
+//        if (whence == AVSEEK_SIZE) return AAsset_getLength(asset);
+//        if (AAsset_seek(asset, offset, whence) == -1){
+//            return -1;
+//        } else {
+//            return 0;
+//        }
+//    }
 
 private:
     std::ifstream source;
