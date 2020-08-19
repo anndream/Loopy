@@ -24,6 +24,8 @@ add_library(native-lib
         src/main/cpp/utils/UtilityFunctions.cpp
         src/main/cpp/ObserverChain.h
         src/main/cpp/ObserverChain.cpp
+        src/main/cpp/FFMpegExtractor.h
+        src/main/cpp/FFMpegExtractor.cpp
         )
 
 set (TARGET_LIBS log android oboe GLESv2)

@@ -24,8 +24,10 @@
 
 
 #include "NDKExtractor.h"
+#include "FFMpegExtractor.h"
 
 
+constexpr int kMaxCompressionRatio { 12 };
 
 StorageDataSource *StorageDataSource::newFromStorageAsset(AMediaExtractor &extractor,
                                                         const char *fileName,
@@ -40,29 +42,49 @@ StorageDataSource *StorageDataSource::newFromStorageAsset(AMediaExtractor &extra
         LOGD("Opened %s", fileName);
 
     }
-    stream.seekg(0, std::ios::end);
+    // FFMPEG
+        stream.seekg(0, std::ios::end);
     long size = stream.tellg();
     LOGD("size %ld", size);
     stream.close();
 
-    constexpr int kMaxCompressionRatio{12};
-    const long maximumDataSizeInBytes =
-            kMaxCompressionRatio * (size) * sizeof(int16_t);
+
+    const long maximumDataSizeInBytes = kMaxCompressionRatio * size * sizeof(float);
     auto decodedData = new uint8_t[maximumDataSizeInBytes];
 
-    int64_t bytesDecoded = NDKExtractor::decode(extractor, decodedData, targetProperties);
-    auto numSamples = bytesDecoded / sizeof(int16_t);
+    int64_t bytesDecoded = FFMpegExtractor::decode(extractor, decodedData, targetProperties);
+    auto numSamples = bytesDecoded / sizeof(float);
 
     auto outputBuffer = std::make_unique<float[]>(numSamples);
-    LOGD("Bytes decoded: %"
-    PRId64
-    "\n", bytesDecoded);
-    LOGD("OutputBuffer: %zu\n", sizeof(outputBuffer));
-    // The NDK decoder can only decode to int16, we need to convert to floats
-    oboe::convertPcm16ToFloat(
-            reinterpret_cast<int16_t *>(decodedData),
-            outputBuffer.get(),
-            bytesDecoded / sizeof(int16_t));
+
+
+    // End FFMPEG
+    memcpy(outputBuffer.get(), decodedData, (size_t)bytesDecoded);
+
+
+//    stream.seekg(0, std::ios::end);
+//    long size = stream.tellg();
+//    LOGD("size %ld", size);
+//    stream.close();
+//
+//    constexpr int kMaxCompressionRatio{12};
+//    const long maximumDataSizeInBytes =
+//            kMaxCompressionRatio * (size) * sizeof(int16_t);
+//    auto decodedData = new uint8_t[maximumDataSizeInBytes];
+//
+//    int64_t bytesDecoded = NDKExtractor::decode(extractor, decodedData, targetProperties);
+//    auto numSamples = bytesDecoded / sizeof(int16_t);
+//
+//    auto outputBuffer = std::make_unique<float[]>(numSamples);
+//    LOGD("Bytes decoded: %"
+//    PRId64
+//    "\n", bytesDecoded);
+//    LOGD("OutputBuffer: %zu\n", sizeof(outputBuffer));
+//    // The NDK decoder can only decode to int16, we need to convert to floats
+//    oboe::convertPcm16ToFloat(
+//            reinterpret_cast<int16_t *>(decodedData),
+//            outputBuffer.get(),
+//            bytesDecoded / sizeof(int16_t));
 
     return new StorageDataSource(std::move(outputBuffer),
                                 numSamples,
