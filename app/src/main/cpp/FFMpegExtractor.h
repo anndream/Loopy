@@ -29,7 +29,7 @@ public:
 
     static int64_t decode(AAsset *asset, uint8_t *targetData, AudioProperties targetProperties);
 
-    static int64_t decode2(char *filepath, uint8_t *targetData, AudioProperties targetProperties);
+    static int64_t decode2(const char *filepath, uint8_t *targetData, AudioProperties targetProperties);
 
 private:
 
@@ -38,7 +38,7 @@ private:
 
     static MediaSource *mSource;
 
-    static char * url;
+    static const char * url;
 
     static AVFormatContext *fContext;
 

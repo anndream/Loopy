@@ -9,7 +9,7 @@
 #include <fstream>
 
 MediaSource *FFMpegExtractor::mSource = nullptr;
-char * FFMpegExtractor::url = nullptr;
+const char * FFMpegExtractor::url = nullptr;
 AVFormatContext * FFMpegExtractor::fContext = nullptr;
 
 
@@ -21,7 +21,7 @@ FFMpegExtractor::~FFMpegExtractor() {
     delete FFMpegExtractor::mSource;
 }
 
-constexpr int kInternalBufferSize = 1152; // Use MP3 block size. https://wiki.hydrogenaud.io/index.php?title=MP3
+constexpr int kInternalBufferSize = 2048; // Use MP3 block size. https://wiki.hydrogenaud.io/index.php?title=MP3
 
 /**
  * Reads from an IStream into FFmpeg.
@@ -38,12 +38,15 @@ constexpr int kInternalBufferSize = 1152; // Use MP3 block size. https://wiki.hy
 // We need to fill the buffer with file's data.
 int read(void *opaque, uint8_t *buffer, int buf_size) {
     MediaSource *source = (MediaSource *) opaque;
-    return source->read(buffer, buf_size);
+
+    int returnValue =  source->read(buffer, buf_size);
+    LOGD("Returning from read: %i", returnValue);
 }
 
 // If FFmpeg needs to seek in the file, it will call this function.
 // We need to change the read pos.
 int64_t seek(void *opaque, int64_t offset, int whence) {
+    LOGD("Seek, offset: %i", (int) offset);
     MediaSource *source = (MediaSource *) opaque;
     return source->seek(offset, whence);
 }
@@ -132,7 +135,7 @@ AVStream *FFMpegExtractor::getBestAudioStream(AVFormatContext *avFormatContext) 
 }
 
 int64_t FFMpegExtractor::decode2(
-        char *filepath,
+        const char *filepath,
         uint8_t *targetData,
         AudioProperties targetProperties) {
 

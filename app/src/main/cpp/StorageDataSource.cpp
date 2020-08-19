@@ -61,6 +61,25 @@ StorageDataSource *StorageDataSource::newFromStorageAsset(AMediaExtractor &extra
     // End FFMPEG
 //    memcpy(outputBuffer.get(), decodedData, (size_t)bytesDecoded);
 
+// other FFMpeg
+        stream.seekg(0, std::ios::end);
+    long size = stream.tellg();
+    LOGD("size %ld", size);
+    stream.close();
+    const long maximumDataSizeInBytes = kMaxCompressionRatio * size * sizeof(float);
+    auto decodedData = new uint8_t[maximumDataSizeInBytes];
+
+    FFMpegExtractor fExtractor;
+    int64_t bytesDecoded = fExtractor.decode2(fileName, decodedData, targetProperties);
+    auto numSamples = bytesDecoded / sizeof(float);
+
+    auto outputBuffer = std::make_unique<float[]>(numSamples);
+
+    memcpy(outputBuffer.get(), decodedData, (size_t)bytesDecoded);
+
+    delete[] decodedData;
+    // end other FFMpeg
+
 
 //    stream.seekg(0, std::ios::end);
 //    long size = stream.tellg();
