@@ -26,7 +26,6 @@
 #include "NDKExtractor.h"
 
 
-
 constexpr int kMaxCompressionRatio{12};
 
 StorageDataSource *StorageDataSource::newFromStorageAsset(AMediaExtractor &extractor,
