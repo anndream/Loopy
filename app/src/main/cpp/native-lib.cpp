@@ -10,8 +10,9 @@
 #include <memory>
 #include "ObserverChain.h"
 
-
 extern "C" {
+
+#include <libavformat/avformat.h>
 
 std::unique_ptr<AudioEngine> audioEngine;
 std::unique_ptr<AudioCallback> callback;
@@ -23,6 +24,8 @@ static jobject myJNIClass;
 jint JNI_OnLoad(JavaVM *pJvm, void *reserved) {
     LOGD("OnLoad");
     g_jvm = pJvm;
+
+    LOGD( "FFmpeg: %s", avcodec_configuration());
 
     return JNI_VERSION_1_6;
 }

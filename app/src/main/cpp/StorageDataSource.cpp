@@ -26,7 +26,6 @@
 #include "NDKExtractor.h"
 
 
-constexpr int kMaxCompressionRatio{12};
 
 StorageDataSource *StorageDataSource::newFromStorageAsset(AMediaExtractor &extractor,
                                                         const char *fileName,
@@ -45,11 +44,6 @@ StorageDataSource *StorageDataSource::newFromStorageAsset(AMediaExtractor &extra
     long size = stream.tellg();
     LOGD("size %ld", size);
     stream.close();
-
-//    size_t *size = nullptr;
-//    AMediaFormat *format = AMediaExtractor_getTrackFormat(&extractor, 0);
-//    AMediaFormat_getSize(format, fileName, size);
-//    LOGD("Opened %s, size %zu\n", fileName, *size);
 
     constexpr int kMaxCompressionRatio{12};
     const long maximumDataSizeInBytes =
