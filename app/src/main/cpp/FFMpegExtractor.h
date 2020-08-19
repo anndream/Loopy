@@ -1,21 +1,9 @@
-/*
- * Copyright 2018 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+//
+// Created by Michael on 2020-01-05.
+//
 
-#ifndef FFMPEG_FFMPEGEXTRACTOR_H
-#define FFMPEG_FFMPEGEXTRACTOR_H
+#ifndef LOOPY_FFMPEGEXTRACTOR_H
+#define LOOPY_FFMPEGEXTRACTOR_H
 
 
 extern "C" {
@@ -27,14 +15,32 @@ extern "C" {
 #include <cstdint>
 #include <android/asset_manager.h>
 #include <Constants.h>
+#include <fstream>
+#include "MediaSource.cpp"
+
 
 class FFMpegExtractor {
 public:
-    static int64_t decode(AMediaExtractor &extractor, uint8_t *targetData, AudioProperties targetProperties);
+
+    FFMpegExtractor();
+
+    ~FFMpegExtractor();
+
+
+    static int64_t decode(AAsset *asset, uint8_t *targetData, AudioProperties targetProperties);
+
+    static int64_t decode2(char *filepath, uint8_t *targetData, AudioProperties targetProperties);
 
 private:
-    static bool createAVIOContext(AMediaExtractor &extractor, uint8_t *buffer, uint32_t bufferSize,
+
+    static bool createAVIOContext(AAsset *asset, uint8_t *buffer, uint32_t bufferSize,
                                   AVIOContext **avioContext);
+
+    static MediaSource *mSource;
+
+    static char * url;
+
+    static AVFormatContext *fContext;
 
     static bool createAVFormatContext(AVIOContext *avioContext, AVFormatContext **avFormatContext);
 
@@ -49,7 +55,11 @@ private:
     static AVCodec *findCodec(AVCodecID id);
 
     static void printCodecParameters(AVCodecParameters *params);
+
+    static bool
+    createAVIOContext2(const std::string &filePath, uint8_t *buffer, uint32_t bufferSize,
+                       AVIOContext **avioContext);
 };
 
 
-#endif //FFMPEG_FFMPEGEXTRACTOR_H
+#endif //LOOPY_FFMPEGEXTRACTOR_H
