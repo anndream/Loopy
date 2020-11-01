@@ -96,12 +96,18 @@ object JniBridge {
         filePreselectedListener?.invoke(value)
     }
 
+    fun convertFilesInFolder(folderName: String): Boolean {
+        Timber.d("JniBridge -> converting")
+        return convertFolder(folderName)
+    }
+
     private external fun setWaitModeNative(shouldWait: Boolean): Boolean
     private external fun selectNative(filename: String): Boolean // TODO factor out the wait mode
     private external fun startPlaybackNative()
     private external fun stopPlaybackNative() : Boolean
     private external fun pausePlaybackNative(): Boolean
     private external fun resumePlaybackNative(): Boolean
+    private external fun convertFolder(folderName: String) : Boolean
 
 }
 

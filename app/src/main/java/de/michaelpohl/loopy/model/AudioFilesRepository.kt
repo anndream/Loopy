@@ -2,6 +2,7 @@ package de.michaelpohl.loopy.model
 
 import android.content.res.AssetManager
 import de.michaelpohl.loopy.common.AudioModel
+import de.michaelpohl.loopy.common.jni.JniBridge
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 
@@ -19,13 +20,19 @@ class AudioFilesRepository(
     /**
      * Load a) the set from the specified folder, b) the saved last selected loops, c) the standard set
      */
-    fun getSingleSet(setFolderName: String? = null): List<AudioModel> {
+    fun getSingleSetOrStandardSet(setFolderName: String? = null): List<AudioModel> {
         return if (setFolderName != null) {
-            storage.listSetContents(setFolderName)
+            storage.getAudioModelsInSet(setFolderName)
         } else {
-            sharedPrefsManager.loadLastLoopSelection()?.toAudioModels() ?: storage.listSetContents(
-                STANDARD_SET_FOLDER_NAME)
-        }
+            // get what was open last time
+            sharedPrefsManager.loadLastLoopSelection()?.toAudioModels() ?:
+
+            // get the basic standard set
+            storage.getAudioModelsInSet(STANDARD_SET_FOLDER_NAME) }
+    }
+
+    suspend fun convertFilesInSet(setFolderName: String = STANDARD_SET_FOLDER_NAME): Boolean {
+        return JniBridge.convertFilesInFolder(storage.getFullPath(setFolderName))
     }
 
     // TODO move the whole standard loop set stuff into a separate class.

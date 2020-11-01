@@ -20,9 +20,9 @@ class PlayerViewModel(
 ) :
     BaseViewModel<PlayerViewModel.UIState>() {
 
-    val isPlaying =  MediatorLiveData<Boolean>().apply{
+    val isPlaying = MediatorLiveData<Boolean>().apply {
         addSource(_state) {
-          this.value = it.isPlaying
+            this.value = it.isPlaying
         }
     }
 
@@ -32,7 +32,7 @@ class PlayerViewModel(
 
     override fun initUIState(): UIState {
         return UIState(
-            loopsList = audioFilesRepository.getSingleSet().toMutableList(),
+            loopsList = audioFilesRepository.getSingleSetOrStandardSet().toMutableList(),
             isPlaying = false,
             clearButtonVisibility = 0,
             settings = settings
@@ -42,6 +42,13 @@ class PlayerViewModel(
     override fun onFragmentResumed() {
         settings = appStateRepo.settings
         _state.value = currentState.copy(settings = settings)
+        testConverter()
+    }
+
+    private fun testConverter() {
+        uiJob {
+            audioFilesRepository.convertFilesInSet()
+        }
     }
 
     override fun onFragmentPaused() {
@@ -131,13 +138,13 @@ class PlayerViewModel(
         uiJob {
             if (looper.stop().isSuccess()) {
                 _state.value = (
-                    currentState.copy(
-                        playbackProgress = Pair(currentState.fileInFocus ?: "", 0),
-                        fileInFocus = "",
-                        filePreselected = "",
-                        isPlaying = false
-                    )
-                )
+                        currentState.copy(
+                            playbackProgress = Pair(currentState.fileInFocus ?: "", 0),
+                            fileInFocus = "",
+                            filePreselected = "",
+                            isPlaying = false
+                        )
+                        )
             }
         }
     }
@@ -169,7 +176,8 @@ class PlayerViewModel(
     private fun onFileSelected(filename: String) {
         if (looper.getWaitMode()) {
             when (looper.getState()) {
-                PLAYING, PAUSED, READY -> _state.value = currentState.copy(filePreselected = filename)
+                PLAYING, PAUSED, READY -> _state.value =
+                    currentState.copy(filePreselected = filename)
                 STOPPED, UNKNOWN -> startLooper()
             }
         } else {

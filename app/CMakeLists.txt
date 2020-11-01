@@ -22,6 +22,8 @@ add_library(native-lib
         src/main/cpp/utils/UtilityFunctions.cpp
         src/main/cpp/ObserverChain.h
         src/main/cpp/ObserverChain.cpp
+        src/main/cpp/Converter.h
+        src/main/cpp/Converter.cpp
         )
 
 set (TARGET_LIBS log android oboe GLESv2)

@@ -30,7 +30,7 @@ class ExternalStorageManager(val context: Context) {
         return getPathContent(path = appStorageFolder.path, onlyFolders = true)
     }
 
-    fun listSetContents(setFolderName: String): List<AudioModel> {
+    fun getAudioModelsInSet(setFolderName: String): List<AudioModel> {
         val audioModels = mutableListOf<AudioModel>()
 
         getPathContent("${appStorageFolder.path}/$setFolderName")
@@ -102,6 +102,9 @@ class ExternalStorageManager(val context: Context) {
         } else true
     }
 
+    fun getFullPath(path: String) : String {
+        return "${appStorageFolder.path}/$path/"
+    }
     fun copyStandardFilesToSdCard(): Boolean {
         Timber.d("Is external storage available: $isExternalStorageAvailable, read only: $isExternalStorageReadOnly")
         val outputPath = "${appStorageFolder.path}/$STANDARD_SET_FOLDER_NAME/"

@@ -9,10 +9,12 @@
 #include <android/asset_manager_jni.h>
 #include <memory>
 #include "ObserverChain.h"
+#include "Converter.h"
 
 
 extern "C" {
 
+std::unique_ptr<Converter> converter;
 std::unique_ptr<AudioEngine> audioEngine;
 std::unique_ptr<AudioCallback> callback;
 
@@ -122,4 +124,17 @@ Java_de_michaelpohl_loopy_common_jni_JniBridge_setWaitModeNative(JNIEnv *env, jo
         }
     }
     return jboolean(false);
+}
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_de_michaelpohl_loopy_common_jni_JniBridge_convertFolder(JNIEnv *env, jobject thiz,
+                                                             jstring folder_name) {
+    if (converter == nullptr) converter = std::__ndk1::make_unique<Converter>();
+    const char *folder = env->GetStringUTFChars(folder_name, NULL);
+
+    if (converter->setFolder(folder)) {
+        LOGD("Set folder name to: %s", folder);
+        converter->convertFolder();
+    }
+    return false;
 }
