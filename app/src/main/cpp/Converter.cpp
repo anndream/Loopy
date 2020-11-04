@@ -28,15 +28,15 @@ bool Converter::convertFolder() {
     LOGD("converting folder: %s", mFolder);
     DIR *dir;
     struct dirent *ent;
-    if ((dir = opendir (mFolder)) != NULL) {
+    if ((dir = opendir(mFolder)) != NULL) {
         LOGD("Dir exists");
         /* print all the files and directories within directory */
-        while ((ent = readdir (dir)) != NULL) {
-           char* c = ent->d_name;
+        while ((ent = readdir(dir)) != NULL) {
+            char *c = ent->d_name;
             LOGD ("%s\n", c);
             doConversion(std::string(c));
         }
-        closedir (dir);
+        closedir(dir);
     } else {
         /* could not open directory */
         LOGE("Dir does not exist");
@@ -46,11 +46,12 @@ bool Converter::convertFolder() {
 }
 
 bool Converter::doConversion(std::string name) {
-    bool isValid = endsWith(name, wav) or endsWith(name, mp3) or endsWith(name,ogg);
+    bool isValid = endsWith(name, wav) or endsWith(name, mp3) or endsWith(name, ogg);
     if (!isValid) {
         LOGD("Omitted from conversion: %s", name.c_str());
         return false;
     }
+    // TODO do not reconvert files that already exist.
 
     std::string fullPath = std::string(mFolder) + name;
     LOGD("My string: %s", fullPath.c_str());
@@ -72,13 +73,9 @@ bool Converter::doConversion(std::string name) {
 
     if (!stream.is_open()) {
         LOGE("Opening stream failed! %s", fullPath.c_str());
-    } else {
-        LOGD("Opened %s", fullPath.c_str());
-
     }
     stream.seekg(0, std::ios::end);
     long size = stream.tellg();
-    LOGD("size %ld", size);
     stream.close();
 
     constexpr int kMaxCompressionRatio{12};
@@ -95,7 +92,6 @@ bool Converter::doConversion(std::string name) {
 
     auto outputBuffer = std::make_unique<float[]>(numSamples);
     LOGD("Bytes decoded: %" PRId64 "\n", bytesDecoded);
-    LOGD("OutputBuffer: %zu\n", sizeof(outputBuffer));
     LOGD("Number of Samples: %i", numSamples);
     // The NDK decoder can only decode to int16, we need to convert to floats
     oboe::convertPcm16ToFloat(
@@ -103,7 +99,11 @@ bool Converter::doConversion(std::string name) {
             outputBuffer.get(),
             bytesDecoded / sizeof(int16_t));
 
-
+    std::string outputSuffix = ".pcm";
+    std::string outputName = std::string(fullPath) + outputSuffix;
+    LOGD("outputName: %s", outputName.c_str());
+    std::ofstream outfile(outputName.c_str(), std::ios::out | std::ios::binary);
+    outfile.write(reinterpret_cast<const char *>(&decodedData), sizeof decodedData);
     return true;
 }
 
