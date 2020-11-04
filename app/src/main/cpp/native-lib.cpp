@@ -58,6 +58,7 @@ Java_de_michaelpohl_loopy_common_jni_JniBridge_selectNative(JNIEnv *env, jobject
 
 
     const char *uri = env->GetStringUTFChars(URI, NULL);
+    // TODO extractor could be removed eventually
     AMediaExtractor *extractor = AMediaExtractor_new();
     if (extractor == nullptr) {
         LOGE("Could not obtain AMediaExtractor");
@@ -67,6 +68,8 @@ Java_de_michaelpohl_loopy_common_jni_JniBridge_selectNative(JNIEnv *env, jobject
     if (amresult != AMEDIA_OK) {
         LOGE("Error setting extractor data source, err %d", amresult);
     }
+    // end extractor block
+
     if (audioEngineExists(env, instance)) {
         return audioEngine->prepareNextPlayer(uri, *extractor);
     }
