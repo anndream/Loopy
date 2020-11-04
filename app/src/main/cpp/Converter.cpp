@@ -6,10 +6,14 @@
 #include <iostream>
 #include <iostream>
 #include <dirent.h>
+#include <cinttypes>
 #include <media/NdkMediaExtractor.h>
+#include <fstream>
+#include <oboe/Oboe.h>
 //#include <filesystem>
 #include "Converter.h"
 #include "utils/logging.h"
+#include "NDKExtractor.h"
 
 namespace fs = std::__fs::filesystem;
 
@@ -62,6 +66,43 @@ bool Converter::doConversion(std::string name) {
     } else {
         LOGD("amresult ok");
     }
+
+    std::ifstream stream;
+    stream.open(fullPath, std::ifstream::in | std::ifstream::binary);
+
+    if (!stream.is_open()) {
+        LOGE("Opening stream failed! %s", fullPath.c_str());
+    } else {
+        LOGD("Opened %s", fullPath.c_str());
+
+    }
+    stream.seekg(0, std::ios::end);
+    long size = stream.tellg();
+    LOGD("size %ld", size);
+    stream.close();
+
+    constexpr int kMaxCompressionRatio{12};
+    const long maximumDataSizeInBytes =
+            kMaxCompressionRatio * (size) * sizeof(int16_t);
+    auto decodedData = new uint8_t[maximumDataSizeInBytes];
+
+    int32_t rate = NDKExtractor::getSampleRate(*extractor);
+    int32_t bitRate = NDKExtractor::getBitRate(*extractor);
+    int32_t *inputSampleRate = &rate;
+
+    int64_t bytesDecoded = NDKExtractor::decode(*extractor, decodedData);
+    auto numSamples = bytesDecoded / sizeof(int16_t);
+
+    auto outputBuffer = std::make_unique<float[]>(numSamples);
+    LOGD("Bytes decoded: %" PRId64 "\n", bytesDecoded);
+    LOGD("OutputBuffer: %zu\n", sizeof(outputBuffer));
+    LOGD("Number of Samples: %i", numSamples);
+    // The NDK decoder can only decode to int16, we need to convert to floats
+    oboe::convertPcm16ToFloat(
+            reinterpret_cast<int16_t *>(decodedData),
+            outputBuffer.get(),
+            bytesDecoded / sizeof(int16_t));
+
 
     return true;
 }

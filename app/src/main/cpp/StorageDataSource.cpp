@@ -17,7 +17,7 @@
 
 #include <utils/logging.h>
 #include <oboe/Oboe.h>
-#include <inttypes.h>
+#include <cinttypes>
 
 #include "StorageDataSource.h"
 #include <fstream>
