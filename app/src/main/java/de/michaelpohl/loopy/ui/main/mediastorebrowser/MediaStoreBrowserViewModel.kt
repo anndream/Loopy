@@ -10,16 +10,17 @@ import de.michaelpohl.loopy.common.immutable
 import de.michaelpohl.loopy.common.toFileModel
 import de.michaelpohl.loopy.ui.main.base.BaseUIState
 import de.michaelpohl.loopy.ui.main.base.BaseViewModel
+import de.michaelpohl.loopy.ui.main.filebrowser.BrowserViewModel
 import de.michaelpohl.loopy.ui.main.mediastorebrowser.adapter.MediaStoreItemModel
 import timber.log.Timber
 import java.io.File
 
-open class MediaStoreBrowserViewModel(private val repo: MediaStoreRepository) : BaseViewModel<BaseUIState>() {
+open class MediaStoreBrowserViewModel(private val repo: MediaStoreRepository) : BrowserViewModel() {
 
     private val mediaStoreEntries = repo.getMediaStoreEntries()
     private val _entriesToDisplay = MutableLiveData<List<MediaStoreItemModel>>()
     private val lastDisplayedEntries = mutableListOf<List<MediaStoreItemModel>>()
-    private val selectedFiles = MutableLiveData<List<MediaStoreItemModel.Track>>()
+    override val selectedFiles = MutableLiveData<List<FileModel.AudioFile>>()
 
     val entriesToDisplay = _entriesToDisplay.immutable()
 
@@ -42,12 +43,16 @@ open class MediaStoreBrowserViewModel(private val repo: MediaStoreRepository) : 
         return object : BaseUIState() {}
     }
 
-    fun onOpenSelectionClicked(view: View) {
+    override fun submitSelection() {
         val audioModels = selectedFiles.value.orEmpty().map {
             val file = File(it.path)
             file.toFileModel()
         }
         onSelectionSubmittedListener(audioModels.filterIsInstance<FileModel.AudioFile>())
+    }
+
+    override fun submitAll() {
+        TODO("Not yet implemented")
     }
 
     fun onArtistClicked(artist: MediaStoreItemModel.Artist) {
@@ -86,10 +91,11 @@ open class MediaStoreBrowserViewModel(private val repo: MediaStoreRepository) : 
 
     fun onTrackSelectionChanged(track: MediaStoreItemModel.Track, isSelected: Boolean) {
         val currentList = selectedFiles.value.orEmpty().toMutableList()
+            val file = File(track.path).toFileModel()
         if (isSelected) {
-            currentList.add(track)
+            if (file is FileModel.AudioFile) currentList.add(file)
         } else {
-            currentList.remove(track)
+            currentList.remove(file)
         }
         selectedFiles.postValue(currentList)
         Timber.d("Currently selected: ${currentList.map { it.name }}")

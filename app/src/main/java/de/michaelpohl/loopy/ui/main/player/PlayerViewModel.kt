@@ -170,14 +170,13 @@ class PlayerViewModel(
     }
 
     private fun onPlayerSwitchedToNextFile(filename: String) {
-        _state.value = (currentState.copy(fileInFocus = filename))
+        _state.postValue(currentState.copy(fileInFocus = filename))
     }
 
     private fun onFileSelected(filename: String) {
         if (looper.getWaitMode()) {
             when (looper.getState()) {
-                PLAYING, PAUSED, READY -> _state.value =
-                    currentState.copy(filePreselected = filename)
+                PLAYING, PAUSED, READY -> _state.postValue(currentState.copy(filePreselected = filename))
                 STOPPED, UNKNOWN -> startLooper()
             }
         } else {
@@ -190,7 +189,7 @@ class PlayerViewModel(
             with(looper.play()) {
                 if (this.isSuccess()) {
                     this.data?.let {
-                        _state.value = currentState.copy(fileInFocus = this.data, isPlaying = true)
+                        _state.postValue(currentState.copy(fileInFocus = this.data, isPlaying = true))
                     }
                 }
             }

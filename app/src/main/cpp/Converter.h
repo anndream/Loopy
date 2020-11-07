@@ -19,6 +19,7 @@ private:
     std::string wav = ".wav";
     std::string mp3 = ".mp3";
     std::string ogg = ".ogg";
+    std::string pcm = ".pcm";
 
     inline bool endsWith(std::string const & value, std::string const & ending)
     {

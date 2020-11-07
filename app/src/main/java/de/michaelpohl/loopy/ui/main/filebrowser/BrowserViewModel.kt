@@ -9,36 +9,12 @@ import de.michaelpohl.loopy.common.immutable
 import de.michaelpohl.loopy.ui.main.base.BaseUIState
 import de.michaelpohl.loopy.ui.main.base.BaseViewModel
 
-open class BrowserViewModel : BaseViewModel<BaseUIState>() {
+abstract class BrowserViewModel : BaseViewModel<BaseUIState>() {
 
-    lateinit var onSelectionSubmitted: (List<FileModel>) -> Unit
+    protected abstract val selectedFiles: MutableLiveData<List<FileModel.AudioFile>>
 
-    protected var _emptyFolderLayoutVisibility = MutableLiveData(View.INVISIBLE) //override if interested
-    var emptyFolderLayoutVisibility = _emptyFolderLayoutVisibility.immutable()
+    abstract fun submitSelection()
 
-    var bottomBarVisibility = MediatorLiveData<Int>()
+    abstract fun submitAll()
 
-    var _selectButtonText = MutableLiveData(getString(R.string.btn_select_all))
-    var selectButtonText = _selectButtonText.immutable()
-
-    lateinit var listener: OnBrowserActionListener
-
-    override fun initUIState(): BaseUIState {
-        // TODO refactor
-        return object : BaseUIState() {}
-    }
-
-    open fun onSelectButtonClicked(view: View) {
-        //override if action is needed
-    }
-
-    open fun onSubmitButtonClicked(view: View) {
-//       onSelectionSubmitted()
-    }
-
-    interface OnBrowserActionListener {
-        fun onFolderClicked(fileModel: FileModel)
-        fun onAlbumClicked(albumTitle: String)
-        fun acceptSubmittedSelection()
-    }
 }

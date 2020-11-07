@@ -12,7 +12,7 @@ import de.michaelpohl.loopy.ui.main.base.BaseUIState
 import de.michaelpohl.loopy.ui.main.base.BaseViewModel
 
 open class FileBrowserViewModel(private val repo: StorageRepository) :
-    BaseViewModel<BaseUIState>() {
+    BrowserViewModel() {
 
     private val _filesToDisplay = MutableLiveData<List<FileModel>>()
     val filesToDisplay = _filesToDisplay.immutable()
@@ -31,7 +31,7 @@ open class FileBrowserViewModel(private val repo: StorageRepository) :
     private var _selectButtonText = MutableLiveData(getString(R.string.btn_select_all))
     var selectButtonText = _selectButtonText.immutable()
 
-    private val selectedFiles = MutableLiveData<List<FileModel.AudioFile>>()
+    override val selectedFiles = MutableLiveData<List<FileModel.AudioFile>>()
 
     override fun initUIState(): BaseUIState {
         // TODO refactor
@@ -65,8 +65,12 @@ open class FileBrowserViewModel(private val repo: StorageRepository) :
         selectedFiles.postValue(currentList)
     }
 
-    fun onOpenSelectionClicked(v: View) {
+    override fun submitSelection() {
         onSelectionSubmittedListener(selectedFiles.value.orEmpty())
+    }
+
+    override fun submitAll() {
+        TODO("Not yet implemented")
     }
 
     fun onBackPressed(): Boolean {

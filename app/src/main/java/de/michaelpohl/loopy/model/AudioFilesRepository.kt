@@ -25,7 +25,7 @@ class AudioFilesRepository(
             storage.getAudioModelsInSet(setFolderName)
         } else {
             // get what was open last time
-            sharedPrefsManager.loadLastLoopSelection()?.toAudioModels() ?:
+//            sharedPrefsManager.loadLastLoopSelection()?.toAudioModels() ?:
 
             // get the basic standard set
             storage.getAudioModelsInSet(STANDARD_SET_FOLDER_NAME) }

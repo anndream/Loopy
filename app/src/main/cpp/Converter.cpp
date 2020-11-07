@@ -4,13 +4,12 @@
 
 #include <string>
 #include <iostream>
-#include <iostream>
+#include <set>
 #include <dirent.h>
 #include <cinttypes>
 #include <media/NdkMediaExtractor.h>
 #include <fstream>
 #include <oboe/Oboe.h>
-//#include <filesystem>
 #include "Converter.h"
 #include "utils/logging.h"
 #include "NDKExtractor.h"
@@ -31,12 +30,41 @@ bool Converter::convertFolder() {
     if ((dir = opendir(mFolder)) != NULL) {
         LOGD("Dir exists");
         /* print all the files and directories within directory */
+
+        std::set<std::string> allFileNames;
+        std::set<std::string> excludedFileNames;
         while ((ent = readdir(dir)) != NULL) {
-            char *c = ent->d_name;
-            LOGD ("%s\n", c);
-            doConversion(std::string(c));
+            std::string name = std::string(ent->d_name);
+
+            bool isConverted = endsWith(name, pcm);
+            if (isConverted) {
+                // Add names of converted files to the excluded list
+                name.erase(name.length() - pcm.length());
+                excludedFileNames.insert(name);
+            } else {
+                bool isValid = endsWith(name, wav) or endsWith(name, mp3) or endsWith(name, ogg);
+                if (isValid) {
+                    allFileNames.insert(name);
+                }
+            }
+
         }
         closedir(dir);
+        for (auto name: excludedFileNames) {
+            LOGD("Excluded name: %s", name.c_str());
+        }
+
+        for (auto name : allFileNames) {
+            LOGD("Name: %s", name.c_str());
+            if (excludedFileNames.find(name) == excludedFileNames.end()) {
+                LOGD("Not yet converted");
+
+                std::string fullPath = std::string(mFolder) + name;
+                LOGD ("Starting conversion for: %s\n", fullPath.c_str());
+                doConversion(std::string(fullPath));
+            }
+
+        }
     } else {
         /* could not open directory */
         LOGE("Dir does not exist");
@@ -45,16 +73,8 @@ bool Converter::convertFolder() {
     return false;
 }
 
-bool Converter::doConversion(std::string name) {
-    bool isValid = endsWith(name, wav) or endsWith(name, mp3) or endsWith(name, ogg);
-    if (!isValid) {
-        LOGD("Omitted from conversion: %s", name.c_str());
-        return false;
-    }
-    // TODO do not reconvert files that already exist.
+bool Converter::doConversion(std::string fullPath) {
 
-    std::string fullPath = std::string(mFolder) + name;
-    LOGD("My string: %s", fullPath.c_str());
 
     AMediaExtractor *extractor = AMediaExtractor_new();
     if (extractor == nullptr) {

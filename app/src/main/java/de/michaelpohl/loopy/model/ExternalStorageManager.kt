@@ -65,6 +65,7 @@ class ExternalStorageManager(val context: Context) {
         if (file.listFiles() == null) {
             return arrayListOf()
         }
+        Timber.d("what's in my path: ${file.listFiles().map { it.name }}")
 
         return file.listFiles()
             .filter { showHiddenFiles || !it.name.startsWith(".") }
