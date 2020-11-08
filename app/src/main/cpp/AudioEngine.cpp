@@ -131,6 +131,9 @@ bool AudioEngine::prepareNextPlayer(const char *fileName, AMediaExtractor &extra
         LOGD("Engine is already prepared. Skipping...");
     }
 
+    // Test
+    StorageDataSource *source = StorageDataSource::openPCM(fileName);
+
     LOGD("Creating new player");
     std::unique_ptr<Player> newPlayer = std::make_unique<Player>(fileName, mCallback, extractor,
                                                                  audioProperties, std::bind(

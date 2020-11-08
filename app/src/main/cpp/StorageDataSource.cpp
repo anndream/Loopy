@@ -23,8 +23,9 @@
 #include <fstream>
 #include <MultiChannelResampler.h>
 
-
 #include "NDKExtractor.h"
+
+
 
 StorageDataSource *StorageDataSource::newFromStorageAsset(AMediaExtractor &extractor,
                                                           const char *fileName,
@@ -137,4 +138,37 @@ StorageDataSource *StorageDataSource::newFromStorageAsset(AMediaExtractor &extra
     return new StorageDataSource(std::move(outputBuffer),
                                  numSamples,
                                  targetProperties);
+}
+
+StorageDataSource *StorageDataSource::openPCM(const char *fileName) {
+
+    std::ifstream stream;
+    stream.open(fileName, std::ifstream::in | std::ifstream::binary);
+
+    int end;
+
+    if (stream.is_open()) {
+        LOGE("Opening stream succeeded! %s", fileName);
+
+        stream.seekg(0, std::ios::end);
+        end = stream.tellg();
+        int numberOfInts = end / 2;
+        int storage[numberOfInts];
+        stream.clear();
+        stream.seekg(0);
+        int test = 0;
+
+        while (stream.tellg() != end) {
+            stream.read((char *) &storage[test], sizeof(2));
+            LOGD("Currently at: %i", stream.tellg());
+            test++;
+        }
+
+        for (int i = 0; i < numberOfInts; i++) {
+            LOGD("%i", storage[i]);
+        }
+    } else {
+        LOGD("Failed to open file");
+    }
+    return nullptr;
 }
