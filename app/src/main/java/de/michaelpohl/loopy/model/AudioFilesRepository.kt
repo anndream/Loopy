@@ -2,6 +2,7 @@ package de.michaelpohl.loopy.model
 
 import android.content.res.AssetManager
 import de.michaelpohl.loopy.common.AudioModel
+import de.michaelpohl.loopy.common.FileModel
 import de.michaelpohl.loopy.common.jni.JniBridge
 import org.koin.core.KoinComponent
 import org.koin.core.inject
@@ -28,7 +29,8 @@ class AudioFilesRepository(
 //            sharedPrefsManager.loadLastLoopSelection()?.toAudioModels() ?:
 
             // get the basic standard set
-            storage.getAudioModelsInSet(STANDARD_SET_FOLDER_NAME) }
+            storage.getAudioModelsInSet(STANDARD_SET_FOLDER_NAME)
+        }
     }
 
     suspend fun convertFilesInSet(setFolderName: String = STANDARD_SET_FOLDER_NAME): Boolean {
@@ -49,7 +51,16 @@ class AudioFilesRepository(
         } else false
     }
 
-    fun addLoopsToSet(newLoops: List<AudioModel>) {
+    fun addLoopsToSet(
+        newLoops: List<FileModel.AudioFile>,
+        setName: String? = null
+    ) {
+
+        JniBridge.convertAndAddToSet(
+            newLoops, storage.getFullPath(setName ?: STANDARD_SET_FOLDER_NAME)
+        )
+
+
     }
 
     fun saveLoopSelection(loopsList: MutableList<AudioModel>) {

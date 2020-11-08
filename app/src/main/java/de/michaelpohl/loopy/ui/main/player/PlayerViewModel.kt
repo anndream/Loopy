@@ -151,7 +151,8 @@ class PlayerViewModel(
 
     fun addNewLoops(newLoops: List<AudioModel>) {
         // TODO ask the user if adding or replacing is desired
-        audioFilesRepository.addLoopsToSet(newLoops)
+//        audioFilesRepository.addLoopsToSet(newLoops)
+        // TODO Fix this area
         val currentLoops = currentState.loopsList.toMutableList()
         currentLoops.addAll(newLoops)
         _state.value = currentState.copy(loopsList = currentLoops)

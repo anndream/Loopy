@@ -133,11 +133,29 @@ JNIEXPORT jboolean JNICALL
 Java_de_michaelpohl_loopy_common_jni_JniBridge_convertFolder(JNIEnv *env, jobject thiz,
                                                              jstring folder_name) {
     if (converter == nullptr) converter = std::__ndk1::make_unique<Converter>();
-    const char *folder = env->GetStringUTFChars(folder_name, NULL);
+    const char *folder = env->GetStringUTFChars(folder_name, nullptr);
 
-    if (converter->setFolder(folder)) {
+    if (converter->setDestinationFolder(folder)) {
         LOGD("Set folder name to: %s", folder);
         converter->convertFolder();
+    }
+    return false;
+}
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_de_michaelpohl_loopy_common_jni_JniBridge_convertSingleFile(JNIEnv *env, jobject thiz,
+                                                                 jstring file_name,
+                                                                 jstring file_path,
+                                                                 jstring set_path) {
+    if (converter == nullptr) converter = std::__ndk1::make_unique<Converter>();
+    const char *folder = env->GetStringUTFChars(set_path, nullptr);
+    const char *path = env->GetStringUTFChars(file_path, nullptr);
+    const char *name = env->GetStringUTFChars(file_name, nullptr);
+
+
+    if (converter->setDestinationFolder(folder)) {
+        LOGD("Set folder name to: %s", folder);
+        converter->convertSingleFile(path, name);
     }
     return false;
 }

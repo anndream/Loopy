@@ -1,5 +1,6 @@
 package de.michaelpohl.loopy.common.jni
 
+import de.michaelpohl.loopy.common.FileModel
 import timber.log.Timber
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
@@ -101,13 +102,30 @@ object JniBridge {
         return convertFolder(folderName)
     }
 
+    fun convertAndAddToSet(fileNames: List<FileModel.AudioFile>, setPath: String): ConversionResult {
+        // TODO it would be nice to know which failed
+        var results = mutableListOf<Boolean>()
+        fileNames.forEach {
+            results.add(convertSingleFile(it.name, it.path, setPath))
+        }
+        return when {
+            results.contains(false) && results.contains(true) -> ConversionResult.SOME_SUCCESS
+            !results.contains(false) && results.contains(true) -> ConversionResult.All_SUCCESS
+            else -> ConversionResult.ALL_FAILED
+        }
+    }
+
     private external fun setWaitModeNative(shouldWait: Boolean): Boolean
     private external fun selectNative(filename: String): Boolean // TODO factor out the wait mode
     private external fun startPlaybackNative()
-    private external fun stopPlaybackNative() : Boolean
+    private external fun stopPlaybackNative(): Boolean
     private external fun pausePlaybackNative(): Boolean
     private external fun resumePlaybackNative(): Boolean
-    private external fun convertFolder(folderName: String) : Boolean
+    private external fun convertFolder(folderName: String): Boolean
+    private external fun convertSingleFile(fileName: String, filePath: String, setPath: String): Boolean
 
+    enum class ConversionResult {
+        All_SUCCESS, SOME_SUCCESS, ALL_FAILED
+    }
 }
 

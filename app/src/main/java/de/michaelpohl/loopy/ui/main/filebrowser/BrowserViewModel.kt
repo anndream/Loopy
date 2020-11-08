@@ -1,20 +1,23 @@
 package de.michaelpohl.loopy.ui.main.filebrowser
 
-import android.view.View
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
-import de.michaelpohl.loopy.R
 import de.michaelpohl.loopy.common.FileModel
-import de.michaelpohl.loopy.common.immutable
+import de.michaelpohl.loopy.model.AudioFilesRepository
 import de.michaelpohl.loopy.ui.main.base.BaseUIState
 import de.michaelpohl.loopy.ui.main.base.BaseViewModel
+import org.koin.core.inject
 
-abstract class BrowserViewModel : BaseViewModel<BaseUIState>() {
+abstract class BrowserViewModel() : BaseViewModel<BaseUIState>() {
+
+    protected val audioRepo: AudioFilesRepository by inject()
 
     protected abstract val selectedFiles: MutableLiveData<List<FileModel.AudioFile>>
 
-    abstract fun submitSelection()
+    lateinit var onSelectionSubmittedListener: (List<FileModel.AudioFile>) -> Unit
 
-    abstract fun submitAll()
+    protected fun submitSelection(selection: List<FileModel.AudioFile>) {
+        audioRepo.addLoopsToSet(selection)
+    }
 
+    abstract fun selectAll()
 }

@@ -22,7 +22,6 @@ open class FileBrowserViewModel(private val repo: StorageRepository) :
     // TODO this doesn't seem to be properly connected yet
     var bottomBarVisibility = MediatorLiveData<Int>()
 
-    lateinit var onSelectionSubmittedListener: (List<FileModel.AudioFile>) -> Unit
 
     private var _emptyFolderLayoutVisibility =
         MutableLiveData(View.INVISIBLE) //override if interested
@@ -65,11 +64,12 @@ open class FileBrowserViewModel(private val repo: StorageRepository) :
         selectedFiles.postValue(currentList)
     }
 
-    override fun submitSelection() {
-        onSelectionSubmittedListener(selectedFiles.value.orEmpty())
+    fun onSubmitClicked() {
+//        onSelectionSubmittedListener(selectedFiles.value.orEmpty())
+        submitSelection(selectedFiles.value.orEmpty())
     }
 
-    override fun submitAll() {
+    override fun selectAll() {
         TODO("Not yet implemented")
     }
 

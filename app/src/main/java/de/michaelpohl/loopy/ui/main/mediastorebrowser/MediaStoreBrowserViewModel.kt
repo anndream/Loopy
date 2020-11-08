@@ -31,8 +31,6 @@ open class MediaStoreBrowserViewModel(private val repo: MediaStoreRepository) : 
     var selectButtonText = _selectButtonText.immutable()
     var bottomBarVisibility = MediatorLiveData<Int>()
 
-    lateinit var onSelectionSubmittedListener: (List<FileModel.AudioFile>) -> Unit
-
     init {
         // initially, we want to show a list of all Albums
         _entriesToDisplay.value = filterAllAlbums()
@@ -43,15 +41,16 @@ open class MediaStoreBrowserViewModel(private val repo: MediaStoreRepository) : 
         return object : BaseUIState() {}
     }
 
-    override fun submitSelection() {
+    fun onSubmitClicked() {
         val audioModels = selectedFiles.value.orEmpty().map {
             val file = File(it.path)
             file.toFileModel()
         }
+        submitSelection(audioModels.filterIsInstance<FileModel.AudioFile>())
         onSelectionSubmittedListener(audioModels.filterIsInstance<FileModel.AudioFile>())
     }
 
-    override fun submitAll() {
+    override fun selectAll() {
         TODO("Not yet implemented")
     }
 

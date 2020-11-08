@@ -16,9 +16,9 @@
 
 namespace fs = std::__fs::filesystem;
 
-Converter::Converter() {}
+Converter::Converter() = default;
 
-bool Converter::setFolder(const char *folderName) {
+bool Converter::setDestinationFolder(const char *folderName) {
     mFolder = folderName;
     return true;
 }
@@ -27,13 +27,13 @@ bool Converter::convertFolder() {
     LOGD("converting folder: %s", mFolder);
     DIR *dir;
     struct dirent *ent;
-    if ((dir = opendir(mFolder)) != NULL) {
+    if ((dir = opendir(mFolder)) != nullptr) {
         LOGD("Dir exists");
         /* print all the files and directories within directory */
 
         std::set<std::string> allFileNames;
         std::set<std::string> excludedFileNames;
-        while ((ent = readdir(dir)) != NULL) {
+        while ((ent = readdir(dir)) != nullptr) {
             std::string name = std::string(ent->d_name);
 
             bool isConverted = endsWith(name, pcm);
@@ -50,18 +50,18 @@ bool Converter::convertFolder() {
 
         }
         closedir(dir);
-        for (auto name: excludedFileNames) {
+        for (const auto& name: excludedFileNames) {
             LOGD("Excluded name: %s", name.c_str());
         }
 
-        for (auto name : allFileNames) {
+        for (const auto& name : allFileNames) {
             LOGD("Name: %s", name.c_str());
             if (excludedFileNames.find(name) == excludedFileNames.end()) {
                 LOGD("Not yet converted");
 
                 std::string fullPath = std::string(mFolder) + name;
                 LOGD ("Starting conversion for: %s\n", fullPath.c_str());
-                doConversion(std::string(fullPath));
+                doConversion(std::string(fullPath), std::string(name));
             }
 
         }
@@ -73,8 +73,7 @@ bool Converter::convertFolder() {
     return false;
 }
 
-bool Converter::doConversion(std::string fullPath) {
-
+bool Converter::doConversion(const std::string& fullPath, const std::string& name) {
 
     AMediaExtractor *extractor = AMediaExtractor_new();
     if (extractor == nullptr) {
@@ -120,12 +119,18 @@ bool Converter::doConversion(std::string fullPath) {
             bytesDecoded / sizeof(int16_t));
 
     std::string outputSuffix = ".pcm";
-    std::string outputName = std::string(fullPath) + outputSuffix;
+    std::string outputName = std::string(mFolder) + name + outputSuffix;
     LOGD("outputName: %s", outputName.c_str());
     std::ofstream outfile(outputName.c_str(), std::ios::out | std::ios::binary);
     outfile.write(reinterpret_cast<const char *>(&decodedData), sizeof decodedData);
     return true;
 }
+
+bool Converter::convertSingleFile(const char *filePath, const char *fileName) {
+    LOGD("Converting single file");
+    return doConversion(std::string(filePath), std::string(fileName));
+}
+
 
 
 
