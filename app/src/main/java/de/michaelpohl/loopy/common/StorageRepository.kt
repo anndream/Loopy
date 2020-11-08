@@ -110,10 +110,12 @@ fun FileModel.AudioFile.toAudioModel(): AudioModel {
 
 fun File.isValidAudioFile(): Boolean {
     val extension = this.extension
-    AppStateRepository.Companion.AudioFileType.values().forEach {
-        if (it.suffix == extension) return true
-    }
-    return false
+    // TODO clean up
+//    AppStateRepository.Companion.AudioFileType.values().forEach {
+//        if (it.suffix == extension) return true
+//    }
+    Timber.d("Checking validity")
+    return this.extension == "pcm" // TODO move to a const
 }
 
 fun String.isValidAudioFileName(): Boolean {

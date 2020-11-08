@@ -41,15 +41,9 @@ class PlayerViewModel(
 
     override fun onFragmentResumed() {
         settings = appStateRepo.settings
-        _state.value = currentState.copy(settings = settings)
-        testConverter()
+        _state.value = initUIState() // TODO check if this works right
     }
 
-    private fun testConverter() {
-        uiJob {
-            audioFilesRepository.convertFilesInSet()
-        }
-    }
 
     override fun onFragmentPaused() {
         super.onFragmentPaused()

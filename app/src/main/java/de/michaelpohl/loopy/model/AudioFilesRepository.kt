@@ -22,15 +22,7 @@ class AudioFilesRepository(
      * Load a) the set from the specified folder, b) the saved last selected loops, c) the standard set
      */
     fun getSingleSetOrStandardSet(setFolderName: String? = null): List<AudioModel> {
-        return if (setFolderName != null) {
-            storage.getAudioModelsInSet(setFolderName)
-        } else {
-            // get what was open last time
-//            sharedPrefsManager.loadLastLoopSelection()?.toAudioModels() ?:
-
-            // get the basic standard set
-            storage.getAudioModelsInSet(STANDARD_SET_FOLDER_NAME)
-        }
+        return storage.getAudioModelsInSet(setFolderName ?: STANDARD_SET_FOLDER_NAME)
     }
 
     suspend fun convertFilesInSet(setFolderName: String = STANDARD_SET_FOLDER_NAME): Boolean {
