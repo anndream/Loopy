@@ -110,10 +110,10 @@ fun FileModel.AudioFile.toAudioModel(): AudioModel {
 
 fun File.isValidAudioFile(): Boolean {
     val extension = this.extension
-    // TODO clean up
-//    AppStateRepository.Companion.AudioFileType.values().forEach {
-//        if (it.suffix == extension) return true
-//    }
+    // TODO clean up -> pcm is a valid audio file too, or should bve checked through a different method
+    AppStateRepository.Companion.AudioFileType.values().forEach {
+        if (it.suffix == extension) return true
+    }
     Timber.d("Checking validity")
     return this.extension == "pcm" // TODO move to a const
 }
