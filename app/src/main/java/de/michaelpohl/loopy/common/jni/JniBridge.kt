@@ -1,5 +1,6 @@
 package de.michaelpohl.loopy.common.jni
 
+import android.os.Environment
 import de.michaelpohl.loopy.common.FileModel
 import timber.log.Timber
 import kotlin.coroutines.Continuation
@@ -106,7 +107,9 @@ object JniBridge {
         // TODO it would be nice to know which failed
         var results = mutableListOf<Boolean>()
         fileNames.forEach {
-            results.add(convertSingleFile(it.name, it.path, setPath))
+//            results.add(convertSingleFile(it.name, it.path, setPath))
+            results.add(convertSingleFile(it.name, it.path, Environment.getExternalStorageDirectory().path))
+
         }
         return when {
             results.contains(false) && results.contains(true) -> ConversionResult.SOME_SUCCESS

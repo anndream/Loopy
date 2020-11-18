@@ -26,7 +26,6 @@
 #include "NDKExtractor.h"
 
 
-
 StorageDataSource *StorageDataSource::newFromStorageAsset(AMediaExtractor &extractor,
                                                           const char *fileName,
                                                           AudioProperties targetProperties) {
@@ -140,35 +139,41 @@ StorageDataSource *StorageDataSource::newFromStorageAsset(AMediaExtractor &extra
                                  targetProperties);
 }
 
-StorageDataSource *StorageDataSource::openPCM(const char *fileName) {
+StorageDataSource *StorageDataSource::openPCM(const char *fileName, AudioProperties targetProperties) {
 
-    std::ifstream stream;
-    stream.open(fileName, std::ifstream::in | std::ifstream::binary);
+    long bufferSize;
+    char * buffer;
+    LOGD("Opening file: %s", fileName);
+    std::ifstream stream(fileName, std::ios::in | std::ios::binary);
+//    stream.open(fileName, std::ifstream::in | std::ifstream::binary);
 
-    int end;
+    stream.seekg (0, std::ios::beg);
+    bufferSize = stream.tellg();
+    LOGD("My buffer size: %ld", bufferSize);
+    buffer = new char [bufferSize];
+    stream.read(buffer, bufferSize);
+    stream.close();
+    LOGD("This worked: %s", buffer);
 
-    if (stream.is_open()) {
-        LOGE("Opening stream succeeded! %s", fileName);
+    auto bytesDecoded = (int64_t)buffer;
+    LOGD("decoded");
+    auto numSamples = bytesDecoded / sizeof(int16_t);
+    auto outputBuffer = std::make_unique<float[]>(numSamples);
+    LOGD("Bytes decoded: %" PRId64 "\n", bytesDecoded);
+    LOGD("OutputBuffer: %zu\n", sizeof(outputBuffer));
+    LOGD("Number of Samples: %i", numSamples);
 
-        stream.seekg(0, std::ios::end);
-        end = stream.tellg();
-        int numberOfInts = end / 2;
-        int storage[numberOfInts];
-        stream.clear();
-        stream.seekg(0);
-        int test = 0;
+    constexpr int kMaxCompressionRatio{12};
+    const long maximumDataSizeInBytes =
+            kMaxCompressionRatio * (bufferSize) * sizeof(int16_t);
+    auto decodedData = new uint8_t[maximumDataSizeInBytes];
 
-        while (stream.tellg() != end) {
-            stream.read((char *) &storage[test], sizeof(2));
-            LOGD("Currently at: %i", stream.tellg());
-            test++;
-        }
+    // The NDK decoder can only decode to int16, we need to convert to floats
+    oboe::convertPcm16ToFloat(
+            reinterpret_cast<int16_t *>(decodedData),
+            outputBuffer.get(),
+            bytesDecoded / sizeof(int16_t));
 
-        for (int i = 0; i < numberOfInts; i++) {
-            LOGD("%i", storage[i]);
-        }
-    } else {
-        LOGD("Failed to open file");
-    }
-    return nullptr;
-}
+    return new StorageDataSource(std::move(outputBuffer),
+                                 numSamples,
+                                 targetProperties);}

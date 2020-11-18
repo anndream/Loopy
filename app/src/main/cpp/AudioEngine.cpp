@@ -132,7 +132,12 @@ bool AudioEngine::prepareNextPlayer(const char *fileName, AMediaExtractor &extra
     }
 
     // Test
-    StorageDataSource *source = StorageDataSource::openPCM(fileName);
+//    StorageDataSource *source = StorageDataSource::openPCM(fileName, audioProperties);
+//    if (source == nullptr) {
+//        LOGD("Loading failed");
+//    } else {
+//        LOGD("Loading succeeded");
+//    }
 
     LOGD("Creating new player");
     std::unique_ptr<Player> newPlayer = std::make_unique<Player>(fileName, mCallback, extractor,

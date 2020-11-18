@@ -13,6 +13,7 @@
 #include "Converter.h"
 #include "utils/logging.h"
 #include "NDKExtractor.h"
+#include <utils/AudioFile.h>
 
 namespace fs = std::__fs::filesystem;
 
@@ -20,6 +21,7 @@ Converter::Converter() = default;
 
 bool Converter::setDestinationFolder(const char *folderName) {
     mFolder = folderName;
+    LOGD("Destination folder set: %s", mFolder);
     return true;
 }
 
@@ -29,7 +31,6 @@ bool Converter::convertFolder() {
     struct dirent *ent;
     if ((dir = opendir(mFolder)) != nullptr) {
         LOGD("Dir exists");
-        /* print all the files and directories within directory */
 
         std::set<std::string> allFileNames;
         std::set<std::string> excludedFileNames;
@@ -50,19 +51,20 @@ bool Converter::convertFolder() {
 
         }
         closedir(dir);
-        for (const auto& name: excludedFileNames) {
+        for (const auto &name: excludedFileNames) {
             LOGD("Excluded name: %s", name.c_str());
         }
 
-        for (const auto& name : allFileNames) {
+        for (const auto &name : allFileNames) {
             LOGD("Name: %s", name.c_str());
-            if (excludedFileNames.find(name) == excludedFileNames.end()) {
-                LOGD("Not yet converted");
+            // TODO take back in
+//            if (excludedFileNames.find(name) == excludedFileNames.end()) {
+//                LOGD("Not yet converted");
 
-                std::string fullPath = std::string(mFolder) + name;
-                LOGD ("Starting conversion for: %s\n", fullPath.c_str());
-                doConversion(std::string(fullPath), std::string(name));
-            }
+            std::string fullPath = std::string(mFolder) + name;
+            LOGD ("Starting conversion for: %s\n", fullPath.c_str());
+            doConversion(std::string(fullPath), std::string(name));
+//            }
 
         }
     } else {
@@ -73,7 +75,7 @@ bool Converter::convertFolder() {
     return false;
 }
 
-bool Converter::doConversion(const std::string& fullPath, const std::string& name) {
+bool Converter::doConversion(const std::string &fullPath, const std::string &name) {
 
     AMediaExtractor *extractor = AMediaExtractor_new();
     if (extractor == nullptr) {
@@ -105,7 +107,7 @@ bool Converter::doConversion(const std::string& fullPath, const std::string& nam
     int32_t rate = NDKExtractor::getSampleRate(*extractor);
     int32_t bitRate = NDKExtractor::getBitRate(*extractor);
     int32_t *inputSampleRate = &rate;
-
+    int numChannels = NDKExtractor::getChannelCount(*extractor);
     int64_t bytesDecoded = NDKExtractor::decode(*extractor, decodedData);
     auto numSamples = bytesDecoded / sizeof(int16_t);
 
@@ -118,11 +120,42 @@ bool Converter::doConversion(const std::string& fullPath, const std::string& nam
             outputBuffer.get(),
             bytesDecoded / sizeof(int16_t));
 
+    AudioFile<float> audioFile;
+    AudioFile<float>::AudioBuffer audioBuffer;
+    audioBuffer.resize(2);
+    audioBuffer[0].resize(numSamples);
+    audioBuffer[1].resize(numSamples);
+    audioFile.setSampleRate(rate);
+
+    bool left = true;
+    for (int i = 0; i < numSamples; i++) {
+        float x = outputBuffer[i];
+//        LOGD("i $d", i);
+        for (int channel = 0; channel < numChannels; channel++) {
+            audioBuffer[channel][i] = x; // TODO division here, does that makes sense???
+        }
+//        if (left) {
+//            audioBuffer[0][i] = x;
+//        } else {
+//            audioBuffer[1][i] = x;
+//        }
+//        left = !left;
+    }
+
+    if (audioFile.setAudioBuffer(audioBuffer)) {
+        LOGD("Setting buffer succeeded");
+    } else {
+        LOGD("setting buffer failed");
+    }
+
+//    audioFile.setBitDepth(16);
+
     std::string outputSuffix = ".pcm";
-    std::string outputName = std::string(mFolder) + name + outputSuffix;
+    std::string outputName = std::string(mFolder) + "/" + name + outputSuffix + ".wav";
     LOGD("outputName: %s", outputName.c_str());
-    std::ofstream outfile(outputName.c_str(), std::ios::out | std::ios::binary);
-    outfile.write(reinterpret_cast<const char *>(&decodedData), sizeof decodedData);
+    audioFile.save(outputName);
+//    std::ofstream outfile(outputName.c_str(), std::ios::out | std::ios::binary);
+//    outfile.write(reinterpret_cast<const char *>(&decodedData), sizeof decodedData);
     return true;
 }
 

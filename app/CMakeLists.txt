@@ -24,6 +24,7 @@ add_library(native-lib
         src/main/cpp/ObserverChain.cpp
         src/main/cpp/Converter.h
         src/main/cpp/Converter.cpp
+        src/main/cpp/utils/AudioFile.h
         )
 
 set (TARGET_LIBS log android oboe GLESv2)
