@@ -114,6 +114,9 @@ bool Converter::doConversion(const std::string &fullPath, const std::string &nam
     auto outputBuffer = std::make_unique<float[]>(numSamples);
     LOGD("Bytes decoded: %" PRId64 "\n", bytesDecoded);
     LOGD("Number of Samples: %i", numSamples);
+    LOGD("Sample rate: %i", rate);
+    LOGD("Bit rate: %i", bitRate);
+    LOGD("Channels: %i", numChannels);
     // The NDK decoder can only decode to int16, we need to convert to floats
     oboe::convertPcm16ToFloat(
             reinterpret_cast<int16_t *>(decodedData),
@@ -125,7 +128,7 @@ bool Converter::doConversion(const std::string &fullPath, const std::string &nam
     audioBuffer.resize(2);
     audioBuffer[0].resize(numSamples);
     audioBuffer[1].resize(numSamples);
-    audioFile.setSampleRate(rate);
+    audioFile.setSampleRate(96000);
 
     bool left = true;
     for (int i = 0; i < numSamples; i++) {
@@ -142,17 +145,25 @@ bool Converter::doConversion(const std::string &fullPath, const std::string &nam
 //        left = !left;
     }
 
+//    audioFile.setBitDepth(32);
     if (audioFile.setAudioBuffer(audioBuffer)) {
         LOGD("Setting buffer succeeded");
     } else {
         LOGD("setting buffer failed");
     }
 
-//    audioFile.setBitDepth(16);
 
     std::string outputSuffix = ".pcm";
     std::string outputName = std::string(mFolder) + "/" + name + outputSuffix + ".wav";
     LOGD("outputName: %s", outputName.c_str());
+
+    LOGD("Audio File, sample rate: %i", audioFile.getSampleRate());
+    LOGD("Audio File, length: %f", audioFile.getLengthInSeconds());
+    LOGD("Audio File, bit depth: %i", audioFile.getBitDepth());
+    LOGD("Audio File, samples per channel: %i", audioFile.getNumSamplesPerChannel());
+    LOGD("Audio File, channels: %i", audioFile.getNumChannels());
+
+
     audioFile.save(outputName);
 //    std::ofstream outfile(outputName.c_str(), std::ios::out | std::ios::binary);
 //    outfile.write(reinterpret_cast<const char *>(&decodedData), sizeof decodedData);
