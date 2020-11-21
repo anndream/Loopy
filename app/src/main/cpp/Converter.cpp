@@ -133,10 +133,6 @@ bool Converter::doConversion(const std::string &fullPath, const std::string &nam
     bool left = true;
     for (int i = 0; i < numSamples; i++) {
         float x = outputBuffer[i];
-////        LOGD("i $d", i);
-//        for (int channel = 0; channel < numChannels; channel++) {
-//            audioBuffer[channel][i] = x; // TODO division here, does that makes sense???
-//        }
         if (left) {
             audioBuffer[0][i] = x;
         } else {
@@ -145,16 +141,13 @@ bool Converter::doConversion(const std::string &fullPath, const std::string &nam
         left = !left;
     }
 
-//    audioFile.setBitDepth(32);
     if (audioFile.setAudioBuffer(audioBuffer)) {
         LOGD("Setting buffer succeeded");
     } else {
         LOGD("setting buffer failed");
     }
 
-
-    std::string outputSuffix = ".pcm";
-    std::string outputName = std::string(mFolder) + "/" + name + outputSuffix + ".wav";
+    std::string outputName = std::string(mFolder) + "/" + name + ".wav";
     LOGD("outputName: %s", outputName.c_str());
 
     LOGD("Audio File, sample rate: %i", audioFile.getSampleRate());
@@ -165,8 +158,6 @@ bool Converter::doConversion(const std::string &fullPath, const std::string &nam
 
 
     audioFile.save(outputName);
-//    std::ofstream outfile(outputName.c_str(), std::ios::out | std::ios::binary);
-//    outfile.write(reinterpret_cast<const char *>(&decodedData), sizeof decodedData);
     return true;
 }
 
