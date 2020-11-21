@@ -133,16 +133,16 @@ bool Converter::doConversion(const std::string &fullPath, const std::string &nam
     bool left = true;
     for (int i = 0; i < numSamples; i++) {
         float x = outputBuffer[i];
-//        LOGD("i $d", i);
-        for (int channel = 0; channel < numChannels; channel++) {
-            audioBuffer[channel][i] = x; // TODO division here, does that makes sense???
-        }
-//        if (left) {
-//            audioBuffer[0][i] = x;
-//        } else {
-//            audioBuffer[1][i] = x;
+////        LOGD("i $d", i);
+//        for (int channel = 0; channel < numChannels; channel++) {
+//            audioBuffer[channel][i] = x; // TODO division here, does that makes sense???
 //        }
-//        left = !left;
+        if (left) {
+            audioBuffer[0][i] = x;
+        } else {
+            audioBuffer[1][i] = x;
+        }
+        left = !left;
     }
 
 //    audioFile.setBitDepth(32);
