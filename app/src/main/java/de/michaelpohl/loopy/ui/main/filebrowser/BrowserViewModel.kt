@@ -16,7 +16,8 @@ abstract class BrowserViewModel() : BaseViewModel<BaseUIState>() {
     lateinit var onSelectionSubmittedListener: (List<FileModel.AudioFile>) -> Unit
 
     protected fun submitSelection(selection: List<FileModel.AudioFile>) {
-        audioRepo.addLoopsToSet(selection)
+        // TODO remove I guess
+//        audioRepo.addLoopsToSet(selection)
     }
 
     abstract fun selectAll()

@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView
 import de.michaelpohl.loopy.R
 import de.michaelpohl.loopy.common.FileModel
 import de.michaelpohl.loopy.common.find
-import de.michaelpohl.loopy.common.toAudioModel
 import de.michaelpohl.loopy.databinding.FragmentPlayerBinding
 import de.michaelpohl.loopy.model.PlayerService
 import de.michaelpohl.loopy.model.PlayerServiceBinder
@@ -85,15 +84,14 @@ class PlayerFragment : BaseFragment() {
         observe()
 
         if (arguments != null) {
-            val newAudioFiles = requireArguments().getParcelableArrayList<FileModel>("models")
-            viewModel.addNewLoops(
-                newAudioFiles.filterIsInstance<FileModel.AudioFile>().map { it.toAudioModel() })
+            handleArguments()
+        }
 
-            try {
-                viewModel.playerActionsListener = context as PlayerViewModel.PlayerActionsListener
-            } catch (e: Exception) {
-                throw Exception("${context} should implement MusicBrowserFragment.OnItemCLickListener")
-            }
+        // TODO what is this? Is it still needed?
+        try {
+            viewModel.playerActionsListener = context as PlayerViewModel.PlayerActionsListener
+        } catch (e: Exception) {
+            throw Exception("${context} should implement MusicBrowserFragment.OnItemCLickListener")
         }
         viewModel.onFragmentResumed()
     }
@@ -102,6 +100,13 @@ class PlayerFragment : BaseFragment() {
         super.onDestroy()
         viewModel.stopLooper()
         unBindAudioService()
+    }
+
+    private fun handleArguments() {
+        val newAudioFiles = requireArguments().getParcelableArrayList<FileModel>("models")
+        viewModel.addNewLoops(
+            newAudioFiles.filterIsInstance<FileModel.AudioFile>()
+        )
     }
 
     private fun initAdapter() {

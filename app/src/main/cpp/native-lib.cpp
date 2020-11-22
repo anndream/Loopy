@@ -155,7 +155,8 @@ Java_de_michaelpohl_loopy_common_jni_JniBridge_convertSingleFile(JNIEnv *env, jo
 
     if (converter->setDestinationFolder(folder)) {
         LOGD("Set folder name to: %s", folder);
-        converter->convertSingleFile(path, name);
+        bool result = converter->convertSingleFile(path, name);
+        return result;
     }
     return false;
 }

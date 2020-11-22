@@ -61,10 +61,10 @@ class ExternalStorageManager(val context: Context) {
         onlyFolders: Boolean = false
     ): List<File> {
         val file = File(path)
-
-        if (file.listFiles() == null) {
-            return arrayListOf()
-        }
+        Timber.d("My file should be: $path")
+//        if (file.listFiles() == null) {
+//            return arrayListOf()
+//        }
         Timber.d("what's in my path: ${file.listFiles().map { it.name }}")
 
         return file.listFiles()
@@ -103,9 +103,10 @@ class ExternalStorageManager(val context: Context) {
         } else true
     }
 
-    fun getFullPath(path: String) : String {
+    fun getFullPath(path: String): String {
         return "${appStorageFolder.path}/$path/"
     }
+
     fun copyStandardFilesToSdCard(): Boolean {
         Timber.d("Is external storage available: $isExternalStorageAvailable, read only: $isExternalStorageReadOnly")
         val outputPath = "${appStorageFolder.path}/$STANDARD_SET_FOLDER_NAME/"
@@ -150,6 +151,19 @@ class ExternalStorageManager(val context: Context) {
             e.printStackTrace()
         }
         return list
+    }
+
+    fun deleteFromSet(path: String?, model: AudioModel) {
+
+        val content = getPathContent("${appStorageFolder.path}/${path ?: STANDARD_SET_FOLDER_NAME}")
+        Timber.d("name: ${model.name}")
+        content.forEach {
+            Timber.d("name: ${it.path}")
+        }
+        val found = content.find { it.path == model.name }
+        found?.let {
+            it.delete()
+        }
     }
 }
 

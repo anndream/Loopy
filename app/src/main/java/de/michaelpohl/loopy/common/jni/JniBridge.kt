@@ -103,12 +103,12 @@ object JniBridge {
         return convertFolder(folderName)
     }
 
-    fun convertAndAddToSet(fileNames: List<FileModel.AudioFile>, setPath: String): ConversionResult {
+    suspend fun convertAndAddToSet(fileNames: List<FileModel.AudioFile>, setPath: String): ConversionResult {
         // TODO it would be nice to know which failed
         var results = mutableListOf<Boolean>()
         fileNames.forEach {
-//            results.add(convertSingleFile(it.name, it.path, setPath))
-            results.add(convertSingleFile(it.name, it.path, Environment.getExternalStorageDirectory().path))
+            results.add(convertSingleFile(it.name, it.path, setPath))
+//            results.add(convertSingleFile(it.name, it.path, Environment.getExternalStorageDirectory().path))
 
         }
         return when {

@@ -46,7 +46,7 @@ open class MediaStoreBrowserViewModel(private val repo: MediaStoreRepository) : 
             val file = File(it.path)
             file.toFileModel()
         }
-        submitSelection(audioModels.filterIsInstance<FileModel.AudioFile>())
+//        submitSelection(audioModels.filterIsInstance<FileModel.AudioFile>())
         onSelectionSubmittedListener(audioModels.filterIsInstance<FileModel.AudioFile>())
     }
 

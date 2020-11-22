@@ -43,19 +43,24 @@ class AudioFilesRepository(
         } else false
     }
 
-    fun addLoopsToSet(
+    suspend fun addLoopsToSet(
         newLoops: List<FileModel.AudioFile>,
         setName: String? = null
-    ) {
+    ): JniBridge.ConversionResult {
 
-        JniBridge.convertAndAddToSet(
+        return JniBridge.convertAndAddToSet(
             newLoops, storage.getFullPath(setName ?: STANDARD_SET_FOLDER_NAME)
         )
 
 
     }
 
-    fun saveLoopSelection(loopsList: MutableList<AudioModel>) {
-        sharedPrefsManager.saveLoopSelection(loopsList)
+    fun saveLoopSelectionToSet(setFolderName: String? = null, loopsList: MutableList<AudioModel>) {
+        val currentlyInSet =
+            storage.getAudioModelsInSet(setFolderName ?: STANDARD_SET_FOLDER_NAME).toMutableSet()
+currentlyInSet.forEach {
+    if (!loopsList.contains(it)) storage.deleteFromSet(setFolderName ?: STANDARD_SET_FOLDER_NAME, it)
+}
+
     }
 }

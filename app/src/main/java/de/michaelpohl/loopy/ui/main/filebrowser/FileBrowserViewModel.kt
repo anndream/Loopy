@@ -65,8 +65,8 @@ open class FileBrowserViewModel(private val repo: StorageRepository) :
     }
 
     fun onSubmitClicked() {
-//        onSelectionSubmittedListener(selectedFiles.value.orEmpty())
-        submitSelection(selectedFiles.value.orEmpty())
+        onSelectionSubmittedListener(selectedFiles.value.orEmpty())
+//        submitSelection(selectedFiles.value.orEmpty())
     }
 
     override fun selectAll() {

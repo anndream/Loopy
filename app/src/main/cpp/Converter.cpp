@@ -81,10 +81,12 @@ bool Converter::doConversion(const std::string &fullPath, const std::string &nam
     if (extractor == nullptr) {
         LOGE("Could not obtain AMediaExtractor");
         return false;
+        return false;
     }
     media_status_t amresult = AMediaExtractor_setDataSource(extractor, fullPath.c_str());
     if (amresult != AMEDIA_OK) {
         LOGE("Error setting extractor data source, err %d", amresult);
+        return false;
     } else {
         LOGD("amresult ok");
     }
@@ -94,6 +96,7 @@ bool Converter::doConversion(const std::string &fullPath, const std::string &nam
 
     if (!stream.is_open()) {
         LOGE("Opening stream failed! %s", fullPath.c_str());
+        return false;
     }
     stream.seekg(0, std::ios::end);
     long size = stream.tellg();
@@ -104,9 +107,7 @@ bool Converter::doConversion(const std::string &fullPath, const std::string &nam
             kMaxCompressionRatio * (size) * sizeof(int16_t);
     auto decodedData = new uint8_t[maximumDataSizeInBytes];
 
-    int32_t rate = NDKExtractor::getSampleRate(*extractor);
     int32_t bitRate = NDKExtractor::getBitRate(*extractor);
-    int32_t *inputSampleRate = &rate;
     int numChannels = NDKExtractor::getChannelCount(*extractor);
     int64_t bytesDecoded = NDKExtractor::decode(*extractor, decodedData);
     auto numSamples = bytesDecoded / sizeof(int16_t);
@@ -114,7 +115,6 @@ bool Converter::doConversion(const std::string &fullPath, const std::string &nam
     auto outputBuffer = std::make_unique<float[]>(numSamples);
     LOGD("Bytes decoded: %" PRId64 "\n", bytesDecoded);
     LOGD("Number of Samples: %i", numSamples);
-    LOGD("Sample rate: %i", rate);
     LOGD("Bit rate: %i", bitRate);
     LOGD("Channels: %i", numChannels);
     // The NDK decoder can only decode to int16, we need to convert to floats
@@ -126,9 +126,11 @@ bool Converter::doConversion(const std::string &fullPath, const std::string &nam
     AudioFile<float> audioFile;
     AudioFile<float>::AudioBuffer audioBuffer;
     audioBuffer.resize(2);
-    audioBuffer[0].resize(numSamples);
-    audioBuffer[1].resize(numSamples);
-    audioFile.setSampleRate(96000);
+    audioBuffer[0].resize(numSamples/2);
+    audioBuffer[1].resize(numSamples/2);
+//    audioFile.setSampleRate(96000);
+audioFile.setBitDepth(32);
+
 
     bool left = true;
     for (int i = 0; i < numSamples; i++) {
@@ -145,7 +147,9 @@ bool Converter::doConversion(const std::string &fullPath, const std::string &nam
         LOGD("Setting buffer succeeded");
     } else {
         LOGD("setting buffer failed");
+        return false;
     }
+
 
     std::string outputName = std::string(mFolder) + "/" + name + ".wav";
     LOGD("outputName: %s", outputName.c_str());
@@ -156,9 +160,7 @@ bool Converter::doConversion(const std::string &fullPath, const std::string &nam
     LOGD("Audio File, samples per channel: %i", audioFile.getNumSamplesPerChannel());
     LOGD("Audio File, channels: %i", audioFile.getNumChannels());
 
-
-    audioFile.save(outputName);
-    return true;
+    return audioFile.save(outputName);
 }
 
 bool Converter::convertSingleFile(const char *filePath, const char *fileName) {

@@ -3,6 +3,7 @@ package de.michaelpohl.loopy.ui.main.player
 import android.view.View
 import androidx.lifecycle.MediatorLiveData
 import de.michaelpohl.loopy.common.AudioModel
+import de.michaelpohl.loopy.common.FileModel
 import de.michaelpohl.loopy.common.PlayerState.*
 import de.michaelpohl.loopy.common.Settings
 import de.michaelpohl.loopy.common.toVisibility
@@ -12,7 +13,9 @@ import de.michaelpohl.loopy.model.AudioFilesRepository
 import de.michaelpohl.loopy.model.PlayerServiceInterface
 import de.michaelpohl.loopy.ui.main.base.BaseUIState
 import de.michaelpohl.loopy.ui.main.base.BaseViewModel
+import kotlinx.coroutines.delay
 import timber.log.Timber
+import kotlin.system.measureTimeMillis
 
 class PlayerViewModel(
     private val audioFilesRepository: AudioFilesRepository,
@@ -32,10 +35,12 @@ class PlayerViewModel(
 
     override fun initUIState(): UIState {
         return UIState(
-            loopsList = audioFilesRepository.getSingleSetOrStandardSet().toMutableList(),
+            loopsList = audioFilesRepository.getSingleSetOrStandardSet()
+                .toMutableList(), // TODO should not be mutable
             isPlaying = false,
             clearButtonVisibility = 0,
-            settings = settings
+            settings = settings,
+            processingOverlayVisibility = false.toVisibility()
         )
     }
 
@@ -143,20 +148,34 @@ class PlayerViewModel(
         }
     }
 
-    fun addNewLoops(newLoops: List<AudioModel>) {
+    fun addNewLoops(newLoops: List<FileModel.AudioFile>) {
         // TODO ask the user if adding or replacing is desired
-        // TODO Fix this area
-        val currentLoops = currentState.loopsList.toMutableList()
-        currentLoops.addAll(newLoops)
-        _state.value = currentState.copy(loopsList = currentLoops)
-        audioFilesRepository.saveLoopSelection(currentLoops)
+        // TODO this can be extremely slow
+        Timber.d("Start conversion") // here loading state
+        _state.postValue(currentState.copy(processingOverlayVisibility = true.toVisibility()))
+        uiJob {
+            val elapsed = measureTimeMillis {
+                val result = audioFilesRepository.addLoopsToSet(newLoops)
+                Timber.d("Result: $result")
+                val loops = audioFilesRepository.getSingleSetOrStandardSet()
+                _state.postValue(currentState.copy(loopsList = loops.toMutableList(), processingOverlayVisibility = false.toVisibility()))
+            }
+            Timber.d("elapsed: $elapsed")
+        }
+
     }
 
     fun onDeleteLoopClicked(audioModel: AudioModel) {
         val currentLoops = currentState.loopsList.toMutableList()
+
         currentLoops.remove(audioModel)
-        _state.value = currentState.copy(loopsList = currentLoops)
-        audioFilesRepository.saveLoopSelection(currentLoops)
+        audioFilesRepository.saveLoopSelectionToSet(
+            null,
+            currentLoops
+        ) // TODO set name needs to be properly connected
+        _state.value = currentState.copy(
+            loopsList = audioFilesRepository.getSingleSetOrStandardSet().toMutableList()
+        )
     }
 
     fun onProgressChangedByUser(newProgress: Float) {
@@ -183,7 +202,12 @@ class PlayerViewModel(
             with(looper.play()) {
                 if (this.isSuccess()) {
                     this.data?.let {
-                        _state.postValue(currentState.copy(fileInFocus = this.data, isPlaying = true))
+                        _state.postValue(
+                            currentState.copy(
+                                fileInFocus = this.data,
+                                isPlaying = true
+                            )
+                        )
                     }
                 }
             }
@@ -203,7 +227,8 @@ class PlayerViewModel(
         val filePreselected: String? = null,
         val playbackProgress: Pair<String, Int>? = null,
         val clearButtonVisibility: Int = View.GONE,
-        val settings: Settings
+        val settings: Settings,
+        val processingOverlayVisibility: Int
     ) : BaseUIState() {
         val emptyMessageVisibility: Int = this.loopsList.isEmpty().toVisibility()
     }
