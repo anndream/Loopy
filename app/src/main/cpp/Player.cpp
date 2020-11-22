@@ -22,8 +22,8 @@
 Player::Player(const char *fileName, AudioCallback &callback, AMediaExtractor &extractor,
                AudioProperties properties, PlaybackEndedCallback c) : mFilename(fileName),
                                                                       mCallback(callback),
-                                                                      mSource(StorageDataSource::newFromStorageAsset(
-                                                                              extractor, fileName,
+                                                                      mSource(StorageDataSource::openFromSet(
+                                                                              fileName,
                                                                               properties)),
                                                                       playbackEndedCallback(c) {
 };

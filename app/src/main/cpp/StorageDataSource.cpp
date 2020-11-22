@@ -22,7 +22,7 @@
 #include "StorageDataSource.h"
 #include <fstream>
 #include <MultiChannelResampler.h>
-
+#include <utils/AudioFile.h>
 #include "NDKExtractor.h"
 
 
@@ -139,41 +139,20 @@ StorageDataSource *StorageDataSource::newFromStorageAsset(AMediaExtractor &extra
                                  targetProperties);
 }
 
-StorageDataSource *StorageDataSource::openPCM(const char *fileName, AudioProperties targetProperties) {
+StorageDataSource *
+StorageDataSource::openFromSet(const char *fileName, AudioProperties targetProperties) {
 
-    long bufferSize;
-    char * buffer;
-    LOGD("Opening file: %s", fileName);
-    std::ifstream stream(fileName, std::ios::in | std::ios::binary);
-//    stream.open(fileName, std::ifstream::in | std::ifstream::binary);
+    AudioFile<float> audioFile;
+    audioFile.load(fileName);
 
-    stream.seekg (0, std::ios::beg);
-    bufferSize = stream.tellg();
-    LOGD("My buffer size: %ld", bufferSize);
-    buffer = new char [bufferSize];
-    stream.read(buffer, bufferSize);
-    stream.close();
-    LOGD("This worked: %s", buffer);
+    int numSamples = audioFile.getNumSamplesPerChannel();
+    auto outputBuffer = std::make_unique<float[]>(numSamples * 2);
 
-    auto bytesDecoded = (int64_t)buffer;
-    LOGD("decoded");
-    auto numSamples = bytesDecoded / sizeof(int16_t);
-    auto outputBuffer = std::make_unique<float[]>(numSamples);
-    LOGD("Bytes decoded: %" PRId64 "\n", bytesDecoded);
-    LOGD("OutputBuffer: %zu\n", sizeof(outputBuffer));
-    LOGD("Number of Samples: %i", numSamples);
-
-    constexpr int kMaxCompressionRatio{12};
-    const long maximumDataSizeInBytes =
-            kMaxCompressionRatio * (bufferSize) * sizeof(int16_t);
-    auto decodedData = new uint8_t[maximumDataSizeInBytes];
-
-    // The NDK decoder can only decode to int16, we need to convert to floats
-    oboe::convertPcm16ToFloat(
-            reinterpret_cast<int16_t *>(decodedData),
-            outputBuffer.get(),
-            bytesDecoded / sizeof(int16_t));
-
+    for (int i = 0; i < numSamples; i += 2) {
+        outputBuffer[i] = audioFile.samples[0][i];
+        outputBuffer[i + 1] = audioFile.samples[1][i];
+    }
     return new StorageDataSource(std::move(outputBuffer),
                                  numSamples,
-                                 targetProperties);}
+                                 targetProperties);
+}

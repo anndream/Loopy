@@ -126,10 +126,10 @@ bool Converter::doConversion(const std::string &fullPath, const std::string &nam
     AudioFile<float> audioFile;
     AudioFile<float>::AudioBuffer audioBuffer;
     audioBuffer.resize(2);
-    audioBuffer[0].resize(numSamples/2);
-    audioBuffer[1].resize(numSamples/2);
-//    audioFile.setSampleRate(96000);
-audioFile.setBitDepth(32);
+    audioBuffer[0].resize(numSamples);
+    audioBuffer[1].resize(numSamples);
+    audioFile.setSampleRate(96000);
+
 
 
     bool left = true;
