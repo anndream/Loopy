@@ -22,7 +22,8 @@
 Player::Player(const char *fileName, AudioCallback &callback, AMediaExtractor &extractor,
                AudioProperties properties, PlaybackEndedCallback c) : mFilename(fileName),
                                                                       mCallback(callback),
-                                                                      mSource(StorageDataSource::openFromSet(
+                                                                      mSource(StorageDataSource::newFromStorageAsset(
+                                                                              extractor,
                                                                               fileName,
                                                                               properties)),
                                                                       playbackEndedCallback(c) {
@@ -34,7 +35,6 @@ void Player::renderAudio(float *targetData, int32_t numFrames) {
     const AudioProperties properties = mSource->getProperties();
 
     if (mIsPlaying) {
-//        mCallback.onFileStartsPlaying(mFilename);
         int64_t framesToRenderFromData = numFrames;
         int64_t totalSourceFrames = mSource->getSize() / properties.channelCount;
 

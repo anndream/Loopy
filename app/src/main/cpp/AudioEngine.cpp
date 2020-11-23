@@ -207,7 +207,7 @@ bool AudioEngine::openStream() {
     builder.setPerformanceMode(PerformanceMode::LowLatency);
     builder.setSharingMode(SharingMode::Exclusive);
     // TODO add variable sample rate here
-    builder.setSampleRate(44100);
+    builder.setSampleRate(88200);
     builder.setSampleRateConversionQuality(SampleRateConversionQuality::Best);
 
     Result result = builder.openStream(&mAudioStream);

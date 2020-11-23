@@ -29,7 +29,7 @@
 StorageDataSource *StorageDataSource::newFromStorageAsset(AMediaExtractor &extractor,
                                                           const char *fileName,
                                                           AudioProperties targetProperties) {
-
+    LOGD("Start newFromStorageAsset");
     std::ifstream stream;
     stream.open(fileName, std::ifstream::in | std::ifstream::binary);
 
@@ -141,17 +141,23 @@ StorageDataSource *StorageDataSource::newFromStorageAsset(AMediaExtractor &extra
 
 StorageDataSource *
 StorageDataSource::openFromSet(const char *fileName, AudioProperties targetProperties) {
-
+    LOGD("Start openFromset");
     AudioFile<float> audioFile;
     audioFile.load(fileName);
 
     int numSamples = audioFile.getNumSamplesPerChannel();
     auto outputBuffer = std::make_unique<float[]>(numSamples * 2);
+//    auto myVector = std::vector<float>();
 
     for (int i = 0; i < numSamples; i += 2) {
         outputBuffer[i] = audioFile.samples[0][i];
         outputBuffer[i + 1] = audioFile.samples[1][i];
     }
+    LOGD("after loop");
+//    return new StorageDataSource(std::move(outputBuffer),
+//                                 numSamples,
+//                                 targetProperties);
+
     return new StorageDataSource(std::move(outputBuffer),
                                  numSamples,
                                  targetProperties);
