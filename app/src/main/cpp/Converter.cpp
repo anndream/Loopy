@@ -128,7 +128,7 @@ bool Converter::doConversion(const std::string &fullPath, const std::string &nam
     audioBuffer.resize(2);
     audioBuffer[0].resize(numSamples);
     audioBuffer[1].resize(numSamples);
-    audioFile.setSampleRate(96000);
+//    audioFile.setSampleRate(48000);
 
 
 
