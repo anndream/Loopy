@@ -172,7 +172,7 @@ bool Converter::doConversion(const std::string &fullPath, const std::string &nam
 //    }
     std::ofstream outfile(outputName.c_str(), std::ios::out | std::ios::binary);
     outfile.write((char*)decodedData, numSamples * sizeof (int16_t));
-    return false;
+    return true;
 }
 
 
