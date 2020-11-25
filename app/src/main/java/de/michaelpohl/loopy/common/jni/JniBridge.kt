@@ -108,7 +108,9 @@ object JniBridge {
         var results = mutableListOf<Boolean>()
         fileNames.forEach {
             results.add(convertSingleFile(it.name, it.path, setPath))
-//            results.add(convertSingleFile(it.name, it.path, Environment.getExternalStorageDirectory().path))
+
+            /* test line to save to external storage for audio file examination */
+            results.add(convertSingleFile(it.name, it.path, Environment.getExternalStorageDirectory().path))
 
         }
         return when {
