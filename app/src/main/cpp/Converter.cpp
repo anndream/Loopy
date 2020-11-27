@@ -141,7 +141,7 @@ bool Converter::doConversion(const std::string &fullPath, const std::string &nam
         LOGD("outputName: %s", outputName.c_str());
 
         std::ofstream outfile(outputName.c_str(), std::ios::out | std::ios::binary);
-        outfile.write((char *) outData, numSamples * sizeof(int16_t));
+        outfile.write((char *) outData, numSamples * sizeof(int16_t) * 2);
         return true;
     }
     LOGD("Stereo");
