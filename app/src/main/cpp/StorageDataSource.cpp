@@ -75,29 +75,7 @@ StorageDataSource *StorageDataSource::newFromStorageAsset(AMediaExtractor &extra
                                      targetProperties);
     } else {
         LOGD("SampleRate is off");
-//
-//
-//        float *inputBuffer;
-//        LOGD("Casting");
-//        inputBuffer = reinterpret_cast<float *>(decodedData);
-//        LOGD("Size of inputBuffer: %zu\n", sizeof(inputBuffer));
-//        LOGD("Divide by this to get the number of samples: %i", sizeof(int16_t));
-//        auto numSamples2 = bytesDecoded / sizeof(int16_t);
-//
-////
-//        float *outputBuffer2;    // multi-channel buffer to be filled
-//        int numInputFrames;  // number of frames of input
-////
-////        // TODO is this correct?
-////        numInputFrames = numSamples2/16;
-//        numInputFrames = 192;
-//        LOGD("numInputFrames: %i", numInputFrames);
-//        LOGD("numSamples: %i", numSamples);
-//        auto outputBuffer3 = std::make_unique<float[]>(numSamples2);
-//
-//
-//        int numOutputFrames = 0;
-//        int channelCount = 2;    // 1 for mono, 2 for stereo // TODO needs to be collected from file too
+
 //
 //        resampler::MultiChannelResampler *mResampler = resampler::MultiChannelResampler::make(
 //                2, // channel count
@@ -144,10 +122,8 @@ StorageDataSource::openFromSet(const char *fileName, AudioProperties targetPrope
     LOGD("Start openFromset");
 
     long bufferSize;
-    char * buffer;
+    char * inputBuffer;
 
-    //###
-    LOGD("Start newFromStorageAsset");
     std::ifstream stream;
     stream.open(fileName, std::ifstream::in | std::ifstream::binary);
 
@@ -157,51 +133,27 @@ StorageDataSource::openFromSet(const char *fileName, AudioProperties targetPrope
         LOGD("Opened %s", fileName);
 
     }
-//    stream.seekg(0, std::ios::end);
-//    long size = stream.tellg();
-//    LOGD("size %ld", size);
-//    stream.close();
-
-
-    //###
-//    std::ifstream stream(fileName, std::ios::in | std::ios::binary);
 
     stream.seekg (0, std::ios::end);
     bufferSize = stream.tellg();
     LOGD("size %ld", bufferSize);
     stream.seekg (0, std::ios::beg);
 
-    buffer = new char [bufferSize];
+    inputBuffer = new char [bufferSize];
 
-    stream.read(buffer, bufferSize);
+    stream.read(inputBuffer, bufferSize);
     LOGD("Successfully read: %i", stream.gcount());
     stream.close();
     auto numSamples = bufferSize / sizeof(int16_t);
     LOGD("NumSamples: %i", numSamples);
-//    for (int i = 0; i < numSamples; i++) {
-//        LOGD("%s", buffer[i]);
-//    }
+
     auto outputBuffer = std::make_unique<float[]>(numSamples);
 
 //    // The NDK decoder can only decode to int16, we need to convert to floats
     oboe::convertPcm16ToFloat(
-            reinterpret_cast<int16_t *>(buffer),
+            reinterpret_cast<int16_t *>(inputBuffer),
             outputBuffer.get(),
             bufferSize / sizeof(int16_t));
-//    AudioFile<float> audioFile;
-//    audioFile.load(fileName);
-//
-//    int numSamples = audioFile.getNumSamplesPerChannel();
-////    auto myVector = std::vector<float>();
-//
-//    for (int i = 0; i < numSamples; i += 2) {
-//        outputBuffer[i] = audioFile.samples[0][i];
-//        outputBuffer[i + 1] = audioFile.samples[1][i];
-//    }
-//    LOGD("after loop");
-////    return new StorageDataSource(std::move(outputBuffer),
-////                                 numSamples,
-////                                 targetProperties);
 
     return new StorageDataSource(std::move(outputBuffer),
                                  numSamples,

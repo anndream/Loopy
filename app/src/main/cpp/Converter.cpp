@@ -100,7 +100,6 @@ bool Converter::doConversion(const std::string &fullPath, const std::string &nam
         LOGD("amresult ok");
     }
 
-
     std::ifstream stream;
     stream.open(fullPath, std::ifstream::in | std::ifstream::binary);
 
@@ -117,67 +116,19 @@ bool Converter::doConversion(const std::string &fullPath, const std::string &nam
             kMaxCompressionRatio * (size) * sizeof(int16_t);
     auto decodedData = new uint8_t[maximumDataSizeInBytes];
 
-    int32_t bitRate = NDKExtractor::getBitRate(*extractor);
-    int numChannels = NDKExtractor::getChannelCount(*extractor);
     int64_t bytesDecoded = NDKExtractor::decode(*extractor, decodedData);
     auto numSamples = bytesDecoded / sizeof(int16_t);
 
-//    auto outputBuffer = std::make_unique<float[]>(numSamples);
-//    LOGD("Bytes decoded: %" PRId64 "\n", bytesDecoded);
-//    LOGD("Number of Samples: %i", numSamples);
-//    LOGD("Bit rate: %i", bitRate);
-//    LOGD("Channels: %i", numChannels);
-//    // The NDK decoder can only decode to int16, we need to convert to floats
-//    convertPcm16ToFloat(
-//            reinterpret_cast<int16_t *>(decodedData),
-//            outputBuffer.get(),
-//            bytesDecoded / sizeof(int16_t));
-//
-//    auto newNumSamples = bytesDecoded / sizeof(float);
-//    LOGD("New num samples: %i", newNumSamples);
-//    AudioFile<float> audioFile;
-//    AudioFile<float>::AudioBuffer audioBuffer;
-//    audioBuffer.resize(2);
-//    audioBuffer[0].resize(newNumSamples);
-//    audioBuffer[1].resize(newNumSamples);
-//
-//    for (int i = 0; i < newNumSamples; i++) {
-//            LOGD("sample %i", i);
-//            audioBuffer[0][i] = outputBuffer[i];
-//            audioBuffer[1][i] = outputBuffer[i+2];
-//        }
-//
-//
-//
-//    if (audioFile.setAudioBuffer(audioBuffer)) {
-//        LOGD("Setting buffer succeeded");
-//    } else {
-//        LOGD("setting buffer failed");
-//        return false;
-//    }
-//
-//
     std::string outputName = std::string(mFolder) + "/" + name + ".pcm";
     LOGD("outputName: %s", outputName.c_str());
-//
-//    LOGD("Audio File, sample rate: %i", audioFile.getSampleRate());
-//    LOGD("Audio File, length: %f", audioFile.getLengthInSeconds());
-//    LOGD("Audio File, bit depth: %i", audioFile.getBitDepth());
-//    LOGD("Audio File, samples per channel: %i", audioFile.getNumSamplesPerChannel());
-//    LOGD("Audio File, channels: %i", audioFile.getNumChannels());
-//
-//    return audioFile.save(outputName);
-//    for (int i = 0; i < numSamples; i++) {
-//        LOGD("Data: %i", decodedData[i]);
-//    }
+
     std::ofstream outfile(outputName.c_str(), std::ios::out | std::ios::binary);
     outfile.write((char*)decodedData, numSamples * sizeof (int16_t));
     return true;
 }
 
-
 bool Converter::convertSingleFile(const char *filePath, const char *fileName) {
-    LOGD("Converting single file");
+    LOGD("Converting single file: %s%s", filePath, fileName);
     return doConversion(std::string(filePath), std::string(fileName));
 }
 

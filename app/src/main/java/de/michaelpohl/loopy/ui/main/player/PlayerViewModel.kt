@@ -6,14 +6,16 @@ import de.michaelpohl.loopy.common.AudioModel
 import de.michaelpohl.loopy.common.FileModel
 import de.michaelpohl.loopy.common.PlayerState.*
 import de.michaelpohl.loopy.common.Settings
+import de.michaelpohl.loopy.common.jni.JniBridge
 import de.michaelpohl.loopy.common.toVisibility
+import de.michaelpohl.loopy.common.util.coroutines.ioJob
 import de.michaelpohl.loopy.common.util.coroutines.uiJob
+import de.michaelpohl.loopy.common.util.coroutines.withUI
 import de.michaelpohl.loopy.model.AppStateRepository
 import de.michaelpohl.loopy.model.AudioFilesRepository
 import de.michaelpohl.loopy.model.PlayerServiceInterface
 import de.michaelpohl.loopy.ui.main.base.BaseUIState
 import de.michaelpohl.loopy.ui.main.base.BaseViewModel
-import kotlinx.coroutines.delay
 import timber.log.Timber
 import kotlin.system.measureTimeMillis
 
@@ -46,7 +48,7 @@ class PlayerViewModel(
 
     override fun onFragmentResumed() {
         settings = appStateRepo.settings
-        _state.value = initUIState() // TODO check if this works right
+        _state.value = initUIState() // TODO check if this works right - it doesn't :-)
     }
 
 
@@ -102,7 +104,7 @@ class PlayerViewModel(
 
     fun onPausePlaybackClicked() {
         uiJob {
-            Timber.d("State: ${looper.getState()}")
+            Timber.d("xxx State: ${looper.getState()}")
             when (looper.getState()) {
                 PLAYING -> {
                     looper.pause()
@@ -150,17 +152,30 @@ class PlayerViewModel(
 
     fun addNewLoops(newLoops: List<FileModel.AudioFile>) {
         // TODO ask the user if adding or replacing is desired
-        // TODO this can be extremely slow
-        Timber.d("Start conversion") // here loading state
-        _state.postValue(currentState.copy(processingOverlayVisibility = true.toVisibility()))
-        uiJob {
+        _state.value = (currentState.copy(processingOverlayVisibility = true.toVisibility()))
+        ioJob {
             val elapsed = measureTimeMillis {
                 val result = audioFilesRepository.addLoopsToSet(newLoops)
-                Timber.d("Result: $result")
-                val loops = audioFilesRepository.getSingleSetOrStandardSet()
-                _state.postValue(currentState.copy(loopsList = loops.toMutableList(), processingOverlayVisibility = false.toVisibility()))
+
+                // TODO set handling is a total work in progress
+                if (result != JniBridge.ConversionResult.ALL_FAILED) { // if at least one from the conversion succeeded, update UI
+                    val loops = audioFilesRepository.getSingleSetOrStandardSet()
+
+                    withUI {
+                        _state.postValue(
+                            currentState.copy(
+                                loopsList = loops.toMutableList(),
+                            )
+                        )
+                    }
+                }
             }
-            Timber.d("elapsed: $elapsed")
+        }.invokeOnCompletion {
+            _state.postValue(
+                currentState.copy(
+                    processingOverlayVisibility = false.toVisibility()
+                )
+            )
         }
 
     }

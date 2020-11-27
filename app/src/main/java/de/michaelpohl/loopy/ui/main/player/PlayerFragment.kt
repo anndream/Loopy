@@ -82,6 +82,7 @@ class PlayerFragment : BaseFragment() {
         super.onResume()
         findNavController().popBackStack(R.id.playerFragment, false)
         observe()
+        viewModel.onFragmentResumed()
 
         if (arguments != null) {
             handleArguments()
@@ -93,7 +94,6 @@ class PlayerFragment : BaseFragment() {
         } catch (e: Exception) {
             throw Exception("${context} should implement MusicBrowserFragment.OnItemCLickListener")
         }
-        viewModel.onFragmentResumed()
     }
 
     override fun onDestroy() {
@@ -143,7 +143,6 @@ class PlayerFragment : BaseFragment() {
     }
 
     private fun bindAudioService() {
-        Timber.d("bindAudioService")
         if (playerServiceBinder == null) {
             val intent = Intent(activity, PlayerService::class.java)
 

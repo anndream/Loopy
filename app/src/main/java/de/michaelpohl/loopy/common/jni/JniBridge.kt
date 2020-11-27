@@ -103,21 +103,35 @@ object JniBridge {
         return convertFolder(folderName)
     }
 
-    suspend fun convertAndAddToSet(fileNames: List<FileModel.AudioFile>, setPath: String): ConversionResult {
+    suspend fun convertAndAddToSet(
+        fileNames: List<FileModel.AudioFile>,
+        setPath: String
+    ): ConversionResult = suspendCoroutine { job ->
         // TODO it would be nice to know which failed
-        var results = mutableListOf<Boolean>()
+        Timber.d("Starting")
+        val results = mutableListOf<Boolean>()
         fileNames.forEach {
             results.add(convertSingleFile(it.name, it.path, setPath))
 
             /* test line to save to external storage for audio file examination */
-            results.add(convertSingleFile(it.name, it.path, Environment.getExternalStorageDirectory().path))
-
+//            results.add(
+//                convertSingleFile(
+//                    it.name,
+//                    it.path,
+//                    Environment.getExternalStorageDirectory().path
+//                )
+//            )
+            if (results.size == fileNames.size) {
+                val result = when {
+                    results.contains(false) && results.contains(true) -> ConversionResult.SOME_SUCCESS
+                    !results.contains(false) && results.contains(true) -> ConversionResult.All_SUCCESS
+                    else -> ConversionResult.ALL_FAILED
+                }
+                Timber.d("resuming")
+                job.resume(result)
+            }
         }
-        return when {
-            results.contains(false) && results.contains(true) -> ConversionResult.SOME_SUCCESS
-            !results.contains(false) && results.contains(true) -> ConversionResult.All_SUCCESS
-            else -> ConversionResult.ALL_FAILED
-        }
+//       job.resume(ConversionResult.ALL_FAILED)
     }
 
     private external fun setWaitModeNative(shouldWait: Boolean): Boolean
@@ -127,7 +141,11 @@ object JniBridge {
     private external fun pausePlaybackNative(): Boolean
     private external fun resumePlaybackNative(): Boolean
     private external fun convertFolder(folderName: String): Boolean
-    private external fun convertSingleFile(fileName: String, filePath: String, setPath: String): Boolean
+    private external fun convertSingleFile(
+        fileName: String,
+        filePath: String,
+        setPath: String
+    ): Boolean
 
     enum class ConversionResult {
         All_SUCCESS, SOME_SUCCESS, ALL_FAILED
