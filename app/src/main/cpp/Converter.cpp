@@ -21,9 +21,16 @@ Converter::Converter() = default;
 
 //constexpr float kScaleI16ToFloat = (1.0f / 32768.0f);
 constexpr float kScaleI16ToFloat = (1.0f / 16384.0f);
-void convertPcm16ToFloat(const int16_t *source, float *destination, int32_t numSamples) {
-    for (int i = 0; i < numSamples; i++) {
-        destination[i] = source[i] * kScaleI16ToFloat;
+
+
+void interleave(const uint16_t *in_L,     // mono input buffer (left channel)
+                const uint16_t *in_R,     // mono input buffer (right channel)
+                uint16_t *out,            // stereo output buffer
+                const size_t num_samples)  // number of samples
+{
+    for (size_t i = 0; i < num_samples; ++i) {
+        out[i * 2] = in_L[i];
+        out[i * 2 + 1] = in_R[i];
     }
 }
 
@@ -90,7 +97,6 @@ bool Converter::doConversion(const std::string &fullPath, const std::string &nam
     if (extractor == nullptr) {
         LOGE("Could not obtain AMediaExtractor");
         return false;
-        return false;
     }
     media_status_t amresult = AMediaExtractor_setDataSource(extractor, fullPath.c_str());
     if (amresult != AMEDIA_OK) {
@@ -99,6 +105,12 @@ bool Converter::doConversion(const std::string &fullPath, const std::string &nam
     } else {
         LOGD("amresult ok");
     }
+//    AMediaFormat *format = AMediaExtractor_getTrackFormat(extractor, 0);
+//    int32_t channelCount;
+//    if (!AMediaFormat_getInt32(format, AMEDIAFORMAT_KEY_CHANNEL_COUNT, &channelCount)) {
+//        return false;
+//    }
+//    LOGD("Source channel count %d", channelCount);
 
     std::ifstream stream;
     stream.open(fullPath, std::ifstream::in | std::ifstream::binary);
@@ -116,14 +128,29 @@ bool Converter::doConversion(const std::string &fullPath, const std::string &nam
             kMaxCompressionRatio * (size) * sizeof(int16_t);
     auto decodedData = new uint8_t[maximumDataSizeInBytes];
 
+    int numChannels = NDKExtractor::getChannelCount(*extractor);
     int64_t bytesDecoded = NDKExtractor::decode(*extractor, decodedData);
     auto numSamples = bytesDecoded / sizeof(int16_t);
+    LOGD("Number channels: %i", numChannels);
+    if (numChannels == 1) {
+        auto outData = new uint16_t[maximumDataSizeInBytes * 2];
+        interleave(reinterpret_cast<uint16_t *>(decodedData),
+                   reinterpret_cast<uint16_t *>(decodedData), outData, numSamples);
+
+        std::string outputName = std::string(mFolder) + "/" + name + ".pcm";
+        LOGD("outputName: %s", outputName.c_str());
+
+        std::ofstream outfile(outputName.c_str(), std::ios::out | std::ios::binary);
+        outfile.write((char *) outData, numSamples * sizeof(int16_t));
+        return true;
+    }
+    LOGD("Stereo");
 
     std::string outputName = std::string(mFolder) + "/" + name + ".pcm";
     LOGD("outputName: %s", outputName.c_str());
 
     std::ofstream outfile(outputName.c_str(), std::ios::out | std::ios::binary);
-    outfile.write((char*)decodedData, numSamples * sizeof (int16_t));
+    outfile.write((char *) decodedData, numSamples * sizeof(int16_t));
     return true;
 }
 
