@@ -10,7 +10,7 @@ import de.michaelpohl.loopy.ui.main.base.BaseViewModel
 import timber.log.Timber
 import java.io.File
 
-abstract class BrowserViewModel(private val appStateRepository: AppStateRepository) : BaseViewModel<BaseUIState>() {
+abstract class BrowserViewModel() : BaseViewModel<BaseUIState>() {
 
     protected abstract val selectedFiles: MutableLiveData<List<FileModel.AudioFile>>
 

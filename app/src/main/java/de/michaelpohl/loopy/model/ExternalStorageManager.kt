@@ -34,7 +34,7 @@ class ExternalStorageManager(val context: Context) {
         val audioModels = mutableListOf<AudioModel>()
 
         getPathContent("${appStorageFolder.path}/$setFolderName")
-            .toFileModels()
+            .toFileModels(setOf(AppStateRepository.Companion.AudioFileType.PCM)) // we store only pcm in the set folders
             .filterIsInstance<FileModel.AudioFile>()
             .forEach {
                 audioModels.add(it.toAudioModel())
@@ -142,7 +142,7 @@ class ExternalStorageManager(val context: Context) {
         val list = mutableSetOf<String>()
         try {
             context.assets.list("")?.let { filesList ->
-                filesList.filter { it.isValidAudioFileName() }.forEach { fileName ->
+                filesList.filter { it.hasAcceptedAudioFileExtension(AppStateRepository.Companion.AudioFileType.values().toSet()) }.forEach { fileName ->
                     Timber.d("Found this file: $fileName")
                     list.add(fileName)
                 }

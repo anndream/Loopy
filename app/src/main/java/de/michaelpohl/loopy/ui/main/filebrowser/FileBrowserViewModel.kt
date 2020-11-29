@@ -7,11 +7,17 @@ import de.michaelpohl.loopy.R
 import de.michaelpohl.loopy.common.FileModel
 import de.michaelpohl.loopy.common.StorageRepository
 import de.michaelpohl.loopy.common.immutable
+import de.michaelpohl.loopy.common.toFileModels
 import de.michaelpohl.loopy.model.AppStateRepository
 import de.michaelpohl.loopy.ui.main.base.BaseUIState
 
-open class FileBrowserViewModel(private val repo: StorageRepository, private val appStateRepository: AppStateRepository) :
-    BrowserViewModel(appStateRepository) {
+open class FileBrowserViewModel(
+    private val storage: StorageRepository,
+    appStateRepository: AppStateRepository
+) :
+    BrowserViewModel() {
+
+    private val acceptedTypes = appStateRepository.settings.acceptedFileTypes.toSet()
 
     private val _filesToDisplay = MutableLiveData<List<FileModel>>()
     val filesToDisplay = _filesToDisplay.immutable()
@@ -37,7 +43,8 @@ open class FileBrowserViewModel(private val repo: StorageRepository, private val
     }
 
     fun getFolderContent(path: String) {
-        val files = repo.getPathContent(path).toFileModels()
+        val files = storage.getPathContent(path)
+            .toFileModels(acceptedTypes)
         if (files.isEmpty()) {
             _emptyFolderLayoutVisibility.postValue(View.VISIBLE)
         } else {
@@ -65,7 +72,6 @@ open class FileBrowserViewModel(private val repo: StorageRepository, private val
 
     fun onSubmitClicked() {
         onSelectionSubmittedListener(selectedFiles.value.orEmpty())
-//        submitSelection(selectedFiles.value.orEmpty())
     }
 
     override fun selectAll() {

@@ -38,7 +38,8 @@ class AppStateRepository(private val sharedPrefs: SharedPreferencesManager) {
         enum class AudioFileType(val suffix: String) {
             WAVE("wav"),
             MP3("mp3"),
-            OGG("ogg")
+            OGG("ogg"),
+            PCM("pcm")
         }
 
         enum class ForbiddenFolder(val folderName: String) {

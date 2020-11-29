@@ -4,9 +4,7 @@ import android.view.View
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import de.michaelpohl.loopy.R
-import de.michaelpohl.loopy.common.FileModel
-import de.michaelpohl.loopy.common.MediaStoreRepository
-import de.michaelpohl.loopy.common.immutable
+import de.michaelpohl.loopy.common.*
 import de.michaelpohl.loopy.model.AppStateRepository
 import de.michaelpohl.loopy.ui.main.base.BaseUIState
 import de.michaelpohl.loopy.ui.main.filebrowser.BrowserViewModel
@@ -14,7 +12,12 @@ import de.michaelpohl.loopy.ui.main.mediastorebrowser.adapter.MediaStoreItemMode
 import timber.log.Timber
 import java.io.File
 
-open class MediaStoreBrowserViewModel(private val repo: MediaStoreRepository, private val appStateRepository: AppStateRepository) : BrowserViewModel(appStateRepository) {
+open class MediaStoreBrowserViewModel(
+    private val repo: MediaStoreRepository,
+    appStateRepository: AppStateRepository
+) : BrowserViewModel() {
+
+    private val acceptedTypes = appStateRepository.settings.acceptedFileTypes.toSet()
 
     private val mediaStoreEntries = repo.getMediaStoreEntries()
     private val _entriesToDisplay = MutableLiveData<List<MediaStoreItemModel>>()
@@ -43,7 +46,7 @@ open class MediaStoreBrowserViewModel(private val repo: MediaStoreRepository, pr
     fun onSubmitClicked() {
         val audioModels = selectedFiles.value.orEmpty().map {
             val file = File(it.path)
-            file.toFileModel()
+            file.toFileModel(acceptedTypes)
         }
 //        submitSelection(audioModels.filterIsInstance<FileModel.AudioFile>())
         onSelectionSubmittedListener(audioModels.filterIsInstance<FileModel.AudioFile>())
@@ -68,6 +71,7 @@ open class MediaStoreBrowserViewModel(private val repo: MediaStoreRepository, pr
         return mediaStoreEntries
             .filterIsInstance<MediaStoreItemModel.Track>()
             .filter { it.album == album.name }
+            .filter { it.path.hasAcceptedAudioFileExtension(acceptedTypes) }
     }
 
     private fun filterAllTracksFromArtist(artist: MediaStoreItemModel.Artist): List<MediaStoreItemModel.Track> {
@@ -89,7 +93,7 @@ open class MediaStoreBrowserViewModel(private val repo: MediaStoreRepository, pr
 
     fun onTrackSelectionChanged(track: MediaStoreItemModel.Track, isSelected: Boolean) {
         val currentList = selectedFiles.value.orEmpty().toMutableList()
-            val file = File(track.path).toFileModel()
+        val file = File(track.path).toFileModel(acceptedTypes)
         if (isSelected) {
             if (file is FileModel.AudioFile) currentList.add(file)
         } else {
