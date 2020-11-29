@@ -6,13 +6,16 @@ import android.database.Cursor
 import android.net.Uri
 import android.provider.MediaStore
 import android.webkit.MimeTypeMap
-import de.michaelpohl.loopy.common.*
+import de.michaelpohl.loopy.common.AppData
+import de.michaelpohl.loopy.common.AudioModel
+import de.michaelpohl.loopy.common.FileModel
+import de.michaelpohl.loopy.common.Settings
 import timber.log.Timber
 
 @Deprecated("This must go")
 object DataRepository {
 
-//    private const val PREFS_LOOPY_KEY = "loops_list"
+    //    private const val PREFS_LOOPY_KEY = "loops_list"
     private lateinit var sharedPrefs: SharedPreferences
     private lateinit var savedAppData: AppData
 
@@ -115,10 +118,15 @@ object DataRepository {
 //        //            appDataFromJson(jsonString)
 //        //        } else {
 //        //            // if we have no saved selectedState, we start up with an empty list of loops and allow all audio file types
-        return AppData(settings = Settings(acceptedFileTypes = AppStateRepository.Companion.AudioFileType.values().toMutableList(),isWaitMode = true, showLoopCount = true, keepScreenOn = true, playInBackground = true))
+        return AppData(
+            settings = Settings(
+                acceptedFileTypes = AppStateRepository.Companion.AudioFileType.values().toMutableList(),
+                isWaitMode = true,
+                showLoopCount = true,
+                keepScreenOn = true,
+                playInBackground = true))
 //        //        }
     }
-
 
     fun getAllowedFileTypeListAsString(): String {
 
@@ -131,7 +139,8 @@ object DataRepository {
 //            }
 //        }
         return builder.toString()
-}
+    }
+
     fun testIntegrity(audioModels: List<AudioModel>): List<AudioModel> {
         var validModels = mutableListOf<AudioModel>()
         audioModels.forEach {

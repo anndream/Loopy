@@ -6,13 +6,13 @@ import de.michaelpohl.loopy.ui.main.settings.AppSetting
 sealed class SettingsItemModel {
     abstract val label: String
     abstract val setting: AppSetting
-    abstract fun flip() : SettingsItemModel
-
+    abstract fun flip(): SettingsItemModel
     data class CheckableSetting(
         override val setting: AppSetting,
         override val label: String,
         val isChecked: Boolean
     ) : SettingsItemModel() {
+
         override fun flip(): SettingsItemModel.CheckableSetting {
             return this.copy(isChecked = !this.isChecked)
         }
@@ -24,6 +24,7 @@ sealed class SettingsItemModel {
         val isChecked: Boolean,
         val type: AppStateRepository.Companion.AudioFileType
     ) : SettingsItemModel() {
+
         override fun flip(): SettingsItemModel.FileTypeSetting {
             return this.copy(isChecked = !this.isChecked)
         }
@@ -50,6 +51,7 @@ sealed class SettingsItemModel {
     data class Header(
         override val label: String
     ) : SettingsItemModel() {
+
         override val setting = AppSetting.NONE
         override fun flip(): SettingsItemModel.Header {
             /* do nothing */

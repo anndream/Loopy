@@ -23,7 +23,6 @@ class SettingsBuilder {
     var showLoopCount by Delegates.notNull<Boolean>()
     var keepScreenOn by Delegates.notNull<Boolean>()
     var playInBackground by Delegates.notNull<Boolean>()
-
     fun addFileType(type: AppStateRepository.Companion.AudioFileType) {
         if (!acceptedFileTypes.contains(type)) acceptedFileTypes.add(type)
     }
@@ -32,7 +31,7 @@ class SettingsBuilder {
         acceptedFileTypes.remove(type)
     }
 
-    fun build() : Settings {
+    fun build(): Settings {
         return Settings(acceptedFileTypes, isWaitMode, showLoopCount, keepScreenOn, playInBackground)
     }
 }

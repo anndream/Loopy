@@ -16,7 +16,7 @@ import org.koin.core.KoinComponent
 import org.koin.core.inject
 import timber.log.Timber
 
-class SettingsDialogFragment() : DialogFragment(), KoinComponent {
+class SettingsDialogFragment : DialogFragment(), KoinComponent {
 
     private val appState: AppStateRepository by inject()
 
@@ -25,7 +25,6 @@ class SettingsDialogFragment() : DialogFragment(), KoinComponent {
     private var showLoopCount: Boolean = false
 
     lateinit var resultListener: (Settings) -> Unit
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         settings = appState.settings
@@ -112,7 +111,7 @@ class SettingsDialogFragment() : DialogFragment(), KoinComponent {
     }
 
     private fun onTogglePlayInBackgroundClicked() {
-        settings.playInBackground = ! settings.playInBackground
+        settings.playInBackground = !settings.playInBackground
     }
 
     private fun onOkClicked() {

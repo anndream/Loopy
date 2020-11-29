@@ -66,7 +66,6 @@ open class MediaStoreBrowserViewModel(
     }
 
     private fun filterAllAlbums() = mediaStoreEntries.filterIsInstance<MediaStoreItemModel.Album>()
-
     private fun filterAllTracksFromAlbum(album: MediaStoreItemModel.Album): List<MediaStoreItemModel.Track> {
         return mediaStoreEntries
             .filterIsInstance<MediaStoreItemModel.Track>()
@@ -102,5 +101,4 @@ open class MediaStoreBrowserViewModel(
         selectedFiles.postValue(currentList)
         Timber.d("Currently selected: ${currentList.map { it.name }}")
     }
-
 }

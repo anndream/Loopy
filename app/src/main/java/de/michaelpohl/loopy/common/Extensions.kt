@@ -73,7 +73,6 @@ fun <T : View> View.find(id: Int): T {
     return this.findViewById(id)
 }
 
-
 /*************************************
  * Extension functions for Views     *
  *************************************/
@@ -243,7 +242,6 @@ fun String.isForbiddenFolderName(): Boolean {
     return AppStateRepository.Companion.ForbiddenFolder.values().any { it.folderName == this }
 }
 
-
 fun List<File>.toFileModels(types: Set<AppStateRepository.Companion.AudioFileType>? = null): List<FileModel> {
     return this.map { it.toFileModel(types) }.filter { it !is FileModel.File }
 }
@@ -307,7 +305,6 @@ fun Double.roundTo(numFractionDigits: Int): Double {
     val factor = 10.0.pow(numFractionDigits.toDouble())
     return (this * factor).roundToInt() / factor
 }
-
 
 fun File.isFolder(): Boolean {
     return this.isDirectory

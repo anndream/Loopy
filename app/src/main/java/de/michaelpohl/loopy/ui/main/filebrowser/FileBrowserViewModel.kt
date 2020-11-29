@@ -27,7 +27,6 @@ open class FileBrowserViewModel(
     // TODO this doesn't seem to be properly connected yet
     var bottomBarVisibility = MediatorLiveData<Int>()
 
-
     private var _emptyFolderLayoutVisibility =
         MutableLiveData(View.INVISIBLE) //override if interested
     var emptyFolderLayoutVisibility = _emptyFolderLayoutVisibility.immutable()
@@ -36,7 +35,6 @@ open class FileBrowserViewModel(
     var selectButtonText = _selectButtonText.immutable()
 
     override val selectedFiles = MutableLiveData<List<FileModel.AudioFile>>()
-
     override fun initUIState(): BaseUIState {
         // TODO refactor
         return object : BaseUIState() {}
@@ -51,7 +49,6 @@ open class FileBrowserViewModel(
             _emptyFolderLayoutVisibility.postValue(View.INVISIBLE)
         }
         _filesToDisplay.postValue(files)
-
     }
 
     fun onFolderClicked(folder: FileModel.Folder) {

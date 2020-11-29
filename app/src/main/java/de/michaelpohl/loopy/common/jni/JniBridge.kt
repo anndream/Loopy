@@ -1,6 +1,5 @@
 package de.michaelpohl.loopy.common.jni
 
-import android.os.Environment
 import de.michaelpohl.loopy.common.FileModel
 import timber.log.Timber
 import kotlin.coroutines.Continuation
@@ -91,12 +90,12 @@ object JniBridge {
 
     fun onFileSelected(value: String) {
         Timber.d("name: $value")
-        fileStartedByPlayerListener?.invoke(value)
+        fileStartedByPlayerListener.invoke(value)
     }
 
     fun onFilePreselected(value: String) {
         Timber.d("preselected: name: $value")
-        fileStartedByPlayerListener?.invoke(value)
+        fileStartedByPlayerListener.invoke(value)
         filePreselectedListener?.invoke(value)
     }
 

@@ -26,7 +26,6 @@ import de.michaelpohl.loopy.common.*
 import de.michaelpohl.loopy.model.AppStateRepository
 import de.michaelpohl.loopy.model.AudioFilesRepository
 import de.michaelpohl.loopy.model.DataRepository
-import de.michaelpohl.loopy.model.SharedPreferencesManager
 import de.michaelpohl.loopy.ui.main.base.BaseFragment
 import de.michaelpohl.loopy.ui.main.player.PlayerFragment
 import de.michaelpohl.loopy.ui.main.player.PlayerViewModel
@@ -46,7 +45,6 @@ class MainActivity : AppCompatActivity(), PlayerViewModel.PlayerActionsListener,
     private lateinit var drawer: DrawerLayout
     private lateinit var currentFragment: BaseFragment
     private lateinit var container: LinearLayout
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
@@ -230,7 +228,6 @@ class MainActivity : AppCompatActivity(), PlayerViewModel.PlayerActionsListener,
         nav_host_fragment.findNavController().navigate(
             R.id.action_playerFragment_to_settingsFragment
         )
-
     }
 
     private fun clearLoopsList() {

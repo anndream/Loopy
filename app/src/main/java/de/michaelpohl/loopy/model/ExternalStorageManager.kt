@@ -142,7 +142,10 @@ class ExternalStorageManager(val context: Context) {
         val list = mutableSetOf<String>()
         try {
             context.assets.list("")?.let { filesList ->
-                filesList.filter { it.hasAcceptedAudioFileExtension(AppStateRepository.Companion.AudioFileType.values().toSet()) }.forEach { fileName ->
+                filesList.filter {
+                    it.hasAcceptedAudioFileExtension(
+                        AppStateRepository.Companion.AudioFileType.values().toSet())
+                }.forEach { fileName ->
                     Timber.d("Found this file: $fileName")
                     list.add(fileName)
                 }
