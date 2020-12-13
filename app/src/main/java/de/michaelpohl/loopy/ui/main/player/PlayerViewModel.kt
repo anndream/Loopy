@@ -63,7 +63,6 @@ class PlayerViewModel(
         settings = appStateRepo.settings
         Timber.d("Settings: $settings")
         _state.value = initUIState()
-//        setPlayerWaitMode(settings.isWaitMode)
     }
 
     override fun onFragmentPaused() {

@@ -16,6 +16,7 @@ import org.koin.core.KoinComponent
 import org.koin.core.inject
 import timber.log.Timber
 
+@Deprecated("Obsolete")
 class SettingsDialogFragment : DialogFragment(), KoinComponent {
 
     private val appState: AppStateRepository by inject()
@@ -89,15 +90,15 @@ class SettingsDialogFragment : DialogFragment(), KoinComponent {
     }
 
     private fun onSwitchImmediatelyClicked() {
-        settings.isWaitMode = false
-        view?.rb_switch_immediately?.isChecked = true
-        view?.rb_wait_until_finished?.isChecked = false
+//        settings.isWaitMode = false
+//        view?.rb_switch_immediately?.isChecked = true
+//        view?.rb_wait_until_finished?.isChecked = false
     }
 
     private fun onWaitUntilFinishedClicked() {
-        settings.isWaitMode = true
-        view?.rb_switch_immediately?.isChecked = false
-        view?.rb_wait_until_finished?.isChecked = true
+//        settings.isWaitMode = true
+//        view?.rb_switch_immediately?.isChecked = false
+//        view?.rb_wait_until_finished?.isChecked = true
     }
 
     private fun onToggleShowLoopCountCLicked() {
@@ -107,11 +108,11 @@ class SettingsDialogFragment : DialogFragment(), KoinComponent {
     }
 
     private fun onToggleKeepScreenOnClicked() {
-        settings.keepScreenOn = !settings.keepScreenOn
+//        settings.keepScreenOn = !settings.keepScreenOn
     }
 
     private fun onTogglePlayInBackgroundClicked() {
-        settings.playInBackground = !settings.playInBackground
+//        settings.playInBackground = !settings.playInBackground
     }
 
     private fun onOkClicked() {

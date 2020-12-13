@@ -11,7 +11,7 @@
         android:paddingStart="16dp"
         android:text="setting"
         android:textColor="@color/action"
-        app:layout_constraintBottom_toTopOf="@id/tv_label_second"
+        app:layout_constraintBottom_toBottomOf="@id/rb_radio_first"
         app:layout_constraintEnd_toStartOf="@id/guide_right"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/rb_radio_first" />
@@ -26,16 +26,15 @@
         app:layout_constraintBottom_toBottomOf="@id/rb_radio_second"
         app:layout_constraintEnd_toStartOf="@id/guide_right"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_label_first" />
+        app:layout_constraintTop_toTopOf="@id/rb_radio_second" />
 
     <RadioButton
         android:id="@+id/rb_radio_first"
         style="@style/WrapContent"
         android:buttonTint="@color/action"
-        android:paddingTop="16dp"
         android:clickable="false"
         android:focusable="false"
-        app:layout_constraintBottom_toTopOf="@id/rb_radio_second"
+        android:paddingTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/guide_right"
         app:layout_constraintTop_toTopOf="parent" />
@@ -44,13 +43,36 @@
         android:id="@+id/rb_radio_second"
         style="@style/WrapContent"
         android:buttonTint="@color/action"
-        android:paddingBottom="16dp"
         android:clickable="false"
         android:focusable="false"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:paddingBottom="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/guide_right"
         app:layout_constraintTop_toBottomOf="@id/rb_radio_first" />
+
+    <TextView
+        android:id="@+id/tv_label_third"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:text="setting"
+        android:textColor="@color/action"
+        app:layout_constraintBottom_toBottomOf="@id/rb_radio_third"
+        app:layout_constraintEnd_toStartOf="@id/guide_right"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/rb_radio_third" />
+
+    <RadioButton
+        android:id="@+id/rb_radio_third"
+        style="@style/WrapContent"
+        android:buttonTint="@color/action"
+        android:clickable="false"
+        android:focusable="false"
+        android:paddingTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/guide_right"
+        app:layout_constraintTop_toBottomOf="@id/rb_radio_second" />
+
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guide_right"

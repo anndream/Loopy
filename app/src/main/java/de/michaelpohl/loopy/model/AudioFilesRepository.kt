@@ -36,6 +36,8 @@ class AudioFilesRepository(
      * @return true if everything was successful
      */
     fun autoCreateStandardLoopSet(): Boolean {
+        val a =
+
         return if (storage.createSetFolder() && storage.copyStandardFilesToSdCard()) {
             sharedPrefsManager.selectedSetName = STANDARD_SET_FOLDER_NAME
             true

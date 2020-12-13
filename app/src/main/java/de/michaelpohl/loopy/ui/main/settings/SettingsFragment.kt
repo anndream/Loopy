@@ -27,8 +27,8 @@ class SettingsFragment : BaseFragment() {
             delegate<SettingsItemModel.Header, SettingsHeaderViewHolder>(R.layout.item_settings_header),
             clickableDelegate<SettingsItemModel.CheckableSetting, SettingsCheckableViewHolder>
                 (R.layout.item_settings_checkable) { viewModel.onSettingsItemClicked(it) },
-            clickableDelegate<SettingsItemModel.ToggleableSetting, SettingsToggleableViewHolder>
-                (R.layout.item_settings_toggleable) { viewModel.onSettingsItemClicked(it) },
+            clickableDelegate<SettingsItemModel.MultipleChoiceSetting, SettingsMultipleChoiceViewHolder>
+                (R.layout.item_settings_multiplechoice) { viewModel.onSettingsItemClicked(it) },
             clickableDelegate<SettingsItemModel.FileTypeSetting, SettingsFileTypeViewHolder>
                 (R.layout.item_settings_checkable) { viewModel.onSettingsItemClicked(it) }
         )

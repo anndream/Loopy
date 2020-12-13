@@ -16,7 +16,7 @@ object JniBridge {
     var filePreselectedListener: ((String) -> Unit)? = null
     lateinit var fileStartedByPlayerListener: ((String) -> Unit)
     lateinit var playbackProgressListener: (String, Int) -> Unit
-    lateinit var conversionProgressListener: (String, Int) -> Unit
+    var conversionProgressListener: ((String, Int) -> Unit)? = null
 
     init {
         System.loadLibrary("native-lib")
@@ -85,7 +85,7 @@ object JniBridge {
     }
 
     fun onConversionProgressChanged(filename: String, steps: Int) {
-        conversionProgressListener(filename, steps)
+        conversionProgressListener?.invoke(filename, steps)
     }
 
     fun onFileSelected(value: String) {

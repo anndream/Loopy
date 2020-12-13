@@ -1,5 +1,6 @@
 package de.michaelpohl.loopy.model
 
+import de.michaelpohl.loopy.common.SampleRate
 import de.michaelpohl.loopy.common.Settings
 
 class AppStateRepository(private val sharedPrefs: SharedPreferencesManager) {
@@ -23,6 +24,7 @@ class AppStateRepository(private val sharedPrefs: SharedPreferencesManager) {
         settings = Settings(
             acceptedFileTypes = mutableListOf(AudioFileType.WAVE, AudioFileType.MP3, AudioFileType.OGG),
             isWaitMode = false,
+            sampleRate = SampleRate.RATE_44_KHZ,
             showLoopCount = true,
             keepScreenOn = true,
             playInBackground = true
